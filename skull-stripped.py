@@ -16,6 +16,8 @@ if not os.path.exists(output_dir):
 
 for subdir in os.listdir(root_path):
     print(subdir)
+    if subdir == ".DS_Store":
+        continue
     T1 = os.path.join(root_path, subdir, subdir + "_space-T2S_desc-masked_T1.nii.gz")
     T2 = os.path.join(root_path, subdir, subdir + "_space-T2S_desc-masked_T2.nii.gz")
     T2S = os.path.join(root_path, subdir, subdir + "_space-T2S_desc-masked_T2S.nii.gz")
