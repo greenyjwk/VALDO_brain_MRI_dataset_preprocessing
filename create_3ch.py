@@ -1,8 +1,6 @@
 import nibabel as nib
 import numpy as np
-import shutil
 import os
-import ants
 
 root_path = "/mnt/storage/ji/VALDO_preprocessing/bias-field-correction"
 output_dir = "/mnt/storage/ji/VALDO_preprocessing/final"
@@ -43,5 +41,3 @@ for subdir in os.listdir(root_path):
     # Save the combined image
     output_file = os.path.join(output_dir, subdir, subdir + ".nii.gz")
     nib.save(combined_nii, output_file)
-
-    print(f"Combined NIfTI file saved as {output_file}")
