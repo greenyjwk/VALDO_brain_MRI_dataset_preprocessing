@@ -17,3 +17,8 @@ for label_file in os.listdir(labels_dir):
             print(f"Deleted: {label_path} and {image_path}")
 
 print("Cleanup complete.")
+
+'''
+It removes png files that don't have cmb patches. 
+It is usually used from the train dataset.
+'''
