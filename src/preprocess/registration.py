@@ -48,12 +48,14 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
             os.mkdir(os.path.join(output_root_path, uid))
 
         # registration for T1
-        registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform="SyN")
+        # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
+        registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
         aligned_volume_1 = registration_1['warpedmovout']
         ants.image_write(aligned_volume_1, os.path.join(output_root_path, uid, moving_files[0]))
         
         # registration for T2
-        registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform="SyN")
+        # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
+        registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform=config["registration_type"])
         aligned_volume_T2 = registration_T2['warpedmovout']
         ants.image_write(aligned_volume_T2, os.path.join(output_root_path, uid, moving_files[1]))
         

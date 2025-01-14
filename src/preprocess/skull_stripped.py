@@ -6,6 +6,9 @@ def skull_stripped_runner(root_path, output_root_path):
     Please run the following commands in the terminal
 
     FREESURFER_HOME=/mnt/storage/ji/freesurfer
+    or
+    FREESURFER_HOME=/media/Datacenter_storage/Ji/freesurfer
+
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
     '''
 

@@ -1,19 +1,14 @@
 {
     "dataset": "mayo",
-    "valdo_input_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
-    "valdo_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
-    "VALDO_registration_reference": "T2S",
+    "valdo_input_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
+    "valdo_registration_reference": "T2S",
     "valdo_registration_output": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered",
-    "valdo_skull_stripped_output": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_skull_stripped",
-    "valdo_bias_field_correction_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction",
-    
-    "mayo_input_src": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo",
-    "mayo_output_src": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo",
+
+    "mayo_input_output_src": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo",
     "mayo_registration_reference": "Axial 3TE T2 STAR",
     "mayo_t1": "3D SAG T1 MPRAGE 1MM",
     "mayo_t2": "SAG 3D T2 SPACE",
+    "registration_type": "SyN",
     "mayo_TE_frame": 2,
-    "mayo_registration_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered",
-    "mayo_skull_stripped_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_skull_stripped",
-    "mayo_bias_field_correction_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction" 
+    "mayo_registration_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered"
 }

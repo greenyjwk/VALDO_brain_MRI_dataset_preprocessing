@@ -18,19 +18,20 @@ def main():
         select_sequence_valdo("T2")
         select_sequence_valdo('T2S')
 
-        input_root_path = config["valdo_input_src"]
-        reference_seq = config["VALDO_registration_reference"]
+        input_root_path = config["valdo_input_output_src"]
+        reference_seq = config["valdo_registration_reference"]
         
         output_root_path_registered = config["valdo_registration_output"]
         registration_runner(reference_seq, input_root_path, output_root_path_registered)
         
-        output_root_path_skull_stripped = config["valdo_skull_stripped_output"]
+        output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
         skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
         
-        output_root_path_bias_field_correction = config["valdo_bias_field_correction_output"]
+        output_root_path_bias_field_correction = output_root_path_skull_stripped.replace("skull_stripped", "bias_field_correction")
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)
 
     elif dataset == 'mayo':
+        input_root_path = config["mayo_input_output_src"]
         reference_seq = config["mayo_registration_reference"]
         T1_seq = config["mayo_t1"]
         T2_seq = config["mayo_t2"]
@@ -40,13 +41,12 @@ def main():
         select_sequence_mayo(T2_seq, config)
 
         output_root_path_registered = config["mayo_registration_output"]
-        input_root_path = config["mayo_input_src"]
         registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
 
-        output_root_path_skull_stripped = config["mayo_skull_stripped_output"]
+        output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
         skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
 
-        output_root_path_bias_field_correction = config["mayo_bias_field_correction_output"]
+        output_root_path_bias_field_correction = output_root_path_skull_stripped.replace("skull_stripped", "bias_field_correction")
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)
 
 if __name__ == "__main__":

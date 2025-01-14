@@ -3,7 +3,7 @@ import os
 
 def select_sequence_valdo(sequence, config):
     root_path = "/mnt/storage/cmb_segmentation_dataset/Task2"
-    output_dir = config["valdo_output_src"]
+    output_dir = config["valdo_input_output_src"]
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
