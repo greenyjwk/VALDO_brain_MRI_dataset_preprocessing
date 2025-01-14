@@ -2,12 +2,6 @@ import os
 from pathlib import Path
 from nipype.interfaces.ants.segmentation import N4BiasFieldCorrection
 
-def create_dir(path):
-    path_obj = Path(path)
-    if not path_obj.is_dir():
-        path_obj.mkdir(parents=True, exist_ok=True)
-    return
-
 def unwarp_bias_field_correction(arg, **kwarg):
     return bias_field_correction(*arg, **kwarg)
 
