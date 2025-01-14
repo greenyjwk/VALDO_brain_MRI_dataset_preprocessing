@@ -4,8 +4,12 @@
 - The SynthStrip, skull stripping module, needs to be installed. <URL> https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/
 - Instructino Guide: https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
 - environtment variable needs to be defined \
+
+ 
+`tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz`
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
+
 
 ## FSL
 export FSLDIR=/media/Datacenter_storage/Ji/fsl
