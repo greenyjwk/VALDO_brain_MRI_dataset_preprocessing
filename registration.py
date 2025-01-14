@@ -2,7 +2,7 @@ import shutil
 import os
 import ants
 
-def registration():
+def registration_runner():
     root_path = "/mnt/storage/cmb_segmentation_dataset/Task2"
     output_dir = "/mnt/storage/ji/VALDO_preprocessing/registered"
 
@@ -39,7 +39,7 @@ def registration():
         shutil.copy(T2S, os.path.join(output_dir, subdir, subdir + "_space-T2S_desc-masked_T2S.nii.gz"))
         
 def main():
-    registration()
+    registration_runner()
     
 if __name__ == "__main__":
     main()
