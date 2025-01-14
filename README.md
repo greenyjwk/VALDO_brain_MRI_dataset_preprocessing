@@ -10,13 +10,6 @@
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
 
-
-## FSL
-export FSLDIR=/media/Datacenter_storage/Ji/fsl
-
-source $FSLDIR/etc/fslconf/fsl.sh
-
-
 ## ANT
 `git clone https://github.com/ANTsX/ANTs.git`
 
