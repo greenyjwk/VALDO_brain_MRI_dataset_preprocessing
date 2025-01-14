@@ -1,4 +1,4 @@
-# VALDO_brain_MRI_dataset_preprocessing
+# brain MRI Preprocessing(VALDO Dataset/Mayo Dataset)
 
 ## Setup for Skull Stripping
 - The SynthStrip, skull stripping module, needs to be installed. <URL> https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/
