@@ -29,6 +29,6 @@ cd ANTS-build
 make install 2>&1 | tee install.log
 ```
 
-or \ 
+or
 just simply install on the conda environment
 `conda install aramislab::ants`
