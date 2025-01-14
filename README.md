@@ -2,6 +2,7 @@
 
 ## Setup for Skull Stripping
 - The SynthStrip, skull stripping module, needs to be installed. <URL> https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/
+- Instructino Guide: https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
 - environtment variable needs to be defined \
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
