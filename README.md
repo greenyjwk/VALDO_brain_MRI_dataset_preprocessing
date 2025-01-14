@@ -6,7 +6,7 @@
 - environtment variable needs to be defined \
 
  
-`tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz`
+`tar -C /usr/local -xzvf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz` \
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
 
