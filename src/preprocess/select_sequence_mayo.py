@@ -4,10 +4,10 @@ import glob
 import sys
 import shutil
 
-def select_sequence_mayo(sequence):
+def select_sequence_mayo(sequence, config):
     sequence = re.sub(r'\s+', '_', sequence)
     root_path = f"/media/Datacenter_storage/Ji/{sequence}/extracted-images"
-    output_dir = os.path.join("/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo")
+    output_dir = os.path.join(config["mayo_output_src"])
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

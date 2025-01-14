@@ -3,7 +3,7 @@ import os
 import ants
 import re
 
-def registration_runner(reference_seq, input_root_path, output_root_path):
+def registration_runner(reference_seq, input_root_path, output_root_path, config):
     
     reference_seq = re.sub(r'\s+', '_', reference_seq)
 
@@ -40,7 +40,7 @@ def registration_runner(reference_seq, input_root_path, output_root_path):
         moving2 = ants.image_read(moving2)
 
         if fixed.shape[3] > 1:
-            fixed = fixed[:,:,:,2]  # Selecting 3rd TE
+            fixed = fixed[:,:,:,config['mayo_TE_frame']]  # Selecting 3rd TE
             print(fixed.shape)
 
         # creating subdirectory from output directory
