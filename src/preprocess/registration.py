@@ -1,14 +1,16 @@
 import shutil
 import os
 import ants
+import re
 
-def registration_runner(reference_seq, output_root_path):
-    root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo"
+def registration_runner(reference_seq, input_root_path, output_root_path):
+    
+    reference_seq = re.sub(r'\s+', '_', reference_seq)
 
     if not os.path.exists(output_root_path):
         os.mkdir(output_root_path)
     
-    subfolders = os.listdir(root_path)
+    subfolders = os.listdir(input_root_path)
 
     for uid in subfolders:
         print(uid)
@@ -18,7 +20,7 @@ def registration_runner(reference_seq, output_root_path):
         # Find the file that starts with reference_seq
         reference_file = None
         moving_files = []
-        for file in os.listdir(os.path.join(root_path, uid)):
+        for file in os.listdir(os.path.join(input_root_path, uid)):
             if file.startswith(reference_seq):
                 reference_file = file
             else:
@@ -28,14 +30,18 @@ def registration_runner(reference_seq, output_root_path):
             print(f"Files not found for subdir: {uid}")
             continue
 
-        fixed = os.path.join(root_path, uid, reference_file)
+        fixed = os.path.join(input_root_path, uid, reference_file)
         reference_path = fixed
-        moving1 = os.path.join(root_path, uid, moving_files[0])
-        moving2 = os.path.join(root_path, uid, moving_files[1])
+        moving1 = os.path.join(input_root_path, uid, moving_files[0])
+        moving2 = os.path.join(input_root_path, uid, moving_files[1])
     
         fixed = ants.image_read(fixed)
         moving1 = ants.image_read(moving1)
         moving2 = ants.image_read(moving2)
+
+        if fixed.shape[3] > 1:
+            fixed = fixed[:,:,:,2]  # Selecting 3rd TE
+            print(fixed.shape)
 
         # creating subdirectory from output directory
         if not os.path.exists(os.path.join(output_root_path, uid)):
