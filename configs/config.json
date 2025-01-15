@@ -1,8 +1,10 @@
 {
     "dataset": "mayo",
+    
     "valdo_input_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
     "valdo_registration_reference": "T2S",
     "valdo_registration_output": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered",
+    "valdo_stack_order": ["T1", "T2", "T2S"],
 
     "mayo_input_output_src": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo",
     "mayo_registration_reference": "Axial 3TE T2 STAR",
@@ -10,5 +12,6 @@
     "mayo_t2": "SAG 3D T2 SPACE",
     "registration_type": "SyN",
     "mayo_TE_frame": 2,
-    "mayo_registration_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered"
+    "mayo_registration_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered",
+    "mayo_stack_order": ["3D_SAG_T1_MPRAGE_1MM", "SAG_3D_T2_SPACE", "Axial_3TE_T2_STAR"]
 }
