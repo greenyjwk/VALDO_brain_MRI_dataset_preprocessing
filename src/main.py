@@ -17,6 +17,10 @@ def main():
         select_sequence_valdo('T1')
         select_sequence_valdo("T2")
         select_sequence_valdo('T2S')
+        
+        reference_seq = "T2S"
+        output_root_path_registered = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered"
+        registration_runner(reference_seq, output_root_path_registered)
 
         input_root_path = config["valdo_input_output_src"]
         reference_seq = config["valdo_registration_reference"]
