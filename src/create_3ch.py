@@ -3,8 +3,15 @@ import numpy as np
 import os
 import glob
 
+# VALDO
+# root_path = "/mnt/storage/Ji/brain_mri_valdo_mayo/bias-field-correction"
+# output_dir = "/mnt/storage/ji/VALDO_preprocessing/final"
+
+# Mayo
 root_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/bias-field-correction"
-output_dir = "/mnt/storage/ji/VALDO_preprocessing/final"
+output_dir = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked"
+
+
 
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
