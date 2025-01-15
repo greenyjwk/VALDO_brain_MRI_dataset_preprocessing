@@ -1,5 +1,5 @@
 {
-    "dataset": "mayo",
+    "dataset": "valdo",
     
     "valdo_input_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
     "valdo_registration_reference": "T2S",

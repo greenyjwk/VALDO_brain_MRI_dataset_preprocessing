@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 from preprocess.registration import registration_runner
 from preprocess.skull_stripped import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
@@ -7,26 +8,29 @@ from preprocess.select_sequence import select_sequence_valdo
 from preprocess.select_sequence_mayo import select_sequence_mayo
 
 def main():
-    config_dir = "/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs"
-    config_path = os.path.join(config_dir, 'config.json')
+    parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
+    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)    
+    args = parser.parse_args()
+
+    if args.dataset == 'mayo':
+        config_path = "/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json"
+    elif args.dataset == 'valdo':
+        config_path = "/mnt/storage/ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json"
+    
     with open(config_path, 'r') as config_file:
         config = json.load(config_file)
 
     dataset = config['dataset']
     if dataset == 'valdo':
-        select_sequence_valdo('T1')
-        select_sequence_valdo("T2")
-        select_sequence_valdo('T2S')
-        
-        reference_seq = "T2S"
-        output_root_path_registered = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered"
-        registration_runner(reference_seq, output_root_path_registered)
-
         input_root_path = config["valdo_input_output_src"]
         reference_seq = config["valdo_registration_reference"]
+            
+        # select_sequence_valdo('T1', config)
+        # select_sequence_valdo("T2", config)
+        # select_sequence_valdo('T2S', config)
         
         output_root_path_registered = config["valdo_registration_output"]
-        registration_runner(reference_seq, input_root_path, output_root_path_registered)
+        registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
         
         output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
         skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)

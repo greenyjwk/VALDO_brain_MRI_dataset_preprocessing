@@ -16,10 +16,11 @@ def select_sequence_valdo(sequence, config):
         img = os.path.join(root_path, subdir, subdir + f"_space-T2S_desc-masked_{sequence}.nii.gz")
 
         # copy and paste T2S to the output directory
-        uid_path = os.path.join(output_dir, uid)
-        if not os.path.exists(uid_path):            
-            os.makedirs(uid_path)
-        shutil.copy(img, os.path.join(uid_path, f"{sequence}_{uid}_" + subdir + f"_space-T2S_desc-masked_{sequence}.nii.gz"))
+        subdir_path = os.path.join(output_dir, subdir)
+        if not os.path.exists(subdir_path):            
+            os.makedirs(subdir_path)
+        # shutil.copy(img, os.path.join(uid_path, f"{sequence}_{uid}_" + subdir + f"_space-T2S_desc-masked_{sequence}.nii.gz"))
+        shutil.copy(img, os.path.join(output_dir, subdir, f"{sequence}_{subdir}.nii.gz"))
         
 def main():
     sequence = 'T1'

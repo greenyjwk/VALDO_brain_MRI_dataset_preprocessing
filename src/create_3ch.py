@@ -7,26 +7,34 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
-    parser.add_argument('--root_path', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction")
-    parser.add_argument('--output_dir', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked")
-    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
-    parser.add_argument('--config_path', type=str, required=False, default="/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
+    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)
+    parser.add_argument('--srd_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_bias_field_correction")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_stacked_temp")
+    parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
     args = parser.parse_args()
 
-    root_path = args.root_path
-    output_dir = args.output_dir
     dataset = args.dataset
-    config_path = args.config_path
+    
+    if dataset == 'mayo':
+        root = "/media/Datacenter_storage/Ji"
+        src_path = root + '/' + args.src_path
+        output_dir = root + '/' + args.output_path
+        config_path = root + '/' + args.config_path
+    elif dataset == "valdo":
+        root = "/mnt/storage/ji"
+        src_path = root + '/' + args.src_path
+        output_dir = root + '/' + args.output_path
+        config_path = root + '/' + args.config_path
     
     # config file
     with open(config_path, 'r') as config_file:
         config = json.load(config_file)
 
     if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+        os.makedirs(output_dir)
 
-    for uid in os.listdir(root_path):
-        subdir_path = os.path.join(root_path, uid)
+    for uid in os.listdir(src_path):
+        subdir_path = os.path.join(src_path, uid)
         
         # creating subdirectory in output directory
         if not os.path.exists(os.path.join(output_dir, uid)):

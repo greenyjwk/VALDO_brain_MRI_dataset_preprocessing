@@ -4,7 +4,6 @@ import ants
 import re
 
 def registration_runner(reference_seq, input_root_path, output_root_path, config):
-    
     reference_seq = re.sub(r'\s+', '_', reference_seq)
 
     if not os.path.exists(output_root_path):
@@ -39,9 +38,10 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         moving1 = ants.image_read(moving1)
         moving2 = ants.image_read(moving2)
 
-        if fixed.shape[3] > 1:
-            fixed = fixed[:,:,:,config['mayo_TE_frame']]  # Selecting 3rd TE
-            print(fixed.shape)
+        if config["dataset"] == 'mayo':
+            if fixed.shape[3] > 1:
+                fixed = fixed[:,:,:,config['mayo_TE_frame']]  # Selecting 3rd TE
+                print(fixed.shape)
 
         # creating subdirectory from output directory
         if not os.path.exists(os.path.join(output_root_path, uid)):
@@ -52,14 +52,13 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
         aligned_volume_1 = registration_1['warpedmovout']
         ants.image_write(aligned_volume_1, os.path.join(output_root_path, uid, moving_files[0]))
-        
+
         # registration for T2
         # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
         registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform=config["registration_type"])
         aligned_volume_T2 = registration_T2['warpedmovout']
         ants.image_write(aligned_volume_T2, os.path.join(output_root_path, uid, moving_files[1]))
         
-        print(reference_file)
         # copy and paste T2S to the output directory
         shutil.copy(reference_path, os.path.join(output_root_path, uid, reference_file))
         
