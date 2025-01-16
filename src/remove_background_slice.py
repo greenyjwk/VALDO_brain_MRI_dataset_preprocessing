@@ -1,7 +1,7 @@
 import os
 
-images_dir = "/mnt/storage/ji/new_preprocessed_valdo/images/train"
-labels_dir = "/mnt/storage/ji/new_preprocessed_valdo/labels/train"
+images_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_temp/images/train"
+labels_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_temp/labels/train"
 
 for label_file in os.listdir(labels_dir):
     label_path = os.path.join(labels_dir, label_file)

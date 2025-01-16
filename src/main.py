@@ -1,11 +1,28 @@
 import os
 import json
 import argparse
+import subprocess
 from preprocess.registration import registration_runner
 from preprocess.skull_stripped import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
 from preprocess.select_sequence import select_sequence_valdo
 from preprocess.select_sequence_mayo import select_sequence_mayo
+
+# def setup_freesurfer():
+#     # Set the FREESURFER_HOME environment variable
+#     os.environ['FREESURFER_HOME'] = '/mnt/storage/ji/freesurfer'
+    
+#     # Source the SetUpFreeSurfer.sh script
+#     setup_script = os.path.join(os.environ['FREESURFER_HOME'], 'SetUpFreeSurfer.sh')
+#     command = f"source {setup_script} && echo $FREESURFER_HOME"
+    
+#     # Run the command in a shell
+#     result = subprocess.run(command, shell=True, executable='/bin/bash', capture_output=True, text=True)
+    
+#     if result.returncode == 0:
+#         print("FREESURFER_HOME is set to:", result.stdout.strip())
+#     else:
+#         print("Error setting up FreeSurfer:", result.stderr)
 
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
@@ -25,9 +42,9 @@ def main():
         input_root_path = config["valdo_input_output_src"]
         reference_seq = config["valdo_registration_reference"]
             
-        # select_sequence_valdo('T1', config)
-        # select_sequence_valdo("T2", config)
-        # select_sequence_valdo('T2S', config)
+        select_sequence_valdo('T1', config)
+        select_sequence_valdo("T2", config)
+        select_sequence_valdo('T2S', config)
         
         output_root_path_registered = config["valdo_registration_output"]
         registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
@@ -58,4 +75,15 @@ def main():
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)
 
 if __name__ == "__main__":
+    # setup_freesurfer()
     main()
+    
+'''
+    For skull-stripping environment variable, please run the following commands in the terminal.
+
+    FREESURFER_HOME=/mnt/storage/ji/freesurfer
+    source $FREESURFER_HOME/SetUpFreeSurfer.sh
+    or
+    FREESURFER_HOME=/media/Datacenter_storage/Ji/freesurfer
+    source $FREESURFER_HOME/SetUpFreeSurfer.sh
+    '''

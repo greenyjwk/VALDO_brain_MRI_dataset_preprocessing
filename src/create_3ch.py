@@ -8,8 +8,8 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
     parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)
-    parser.add_argument('--srd_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_bias_field_correction")
-    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_stacked_temp")
+    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_bias_field_correction")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_stacked")
     parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
     args = parser.parse_args()
 
@@ -45,10 +45,14 @@ def main():
             nii2 = glob.glob(os.path.join(subdir_path, f"{config['mayo_stack_order'][1]}*.nii.gz"))
             nii3 = glob.glob(os.path.join(subdir_path, f"{config['mayo_stack_order'][2]}*.nii.gz"))
         elif dataset == 'valdo':
+            print(config['valdo_stack_order'][0])
+            print(config['valdo_stack_order'][1])
+            print(config['valdo_stack_order'][2])
+            
             nii1 = glob.glob(os.path.join(subdir_path, f"{config['valdo_stack_order'][0]}*.nii.gz"))
             nii2 = glob.glob(os.path.join(subdir_path, f"{config['valdo_stack_order'][1]}*.nii.gz"))
             nii3 = glob.glob(os.path.join(subdir_path, f"{config['valdo_stack_order'][2]}*.nii.gz"))
-
+        
         nii1 = nib.load(nii1[0])
         nii2 = nib.load(nii2[0])
         nii3 = nib.load(nii3[0])
