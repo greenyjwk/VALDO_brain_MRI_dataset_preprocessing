@@ -1,10 +1,11 @@
 import os
+import sys
 import json
 from preprocess.registration import registration_runner
 from preprocess.skull_stripped import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
 from preprocess.select_sequence import select_sequence_valdo
-from preprocess.select_sequence_mayo import select_sequence_mayo
+from preprocess.resample import resample_runner
 
 def main():
     config_dir = "/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs"
@@ -40,12 +41,15 @@ def main():
         T1_seq = config["mayo_t1"]
         T2_seq = config["mayo_t2"]
 
-        select_sequence_mayo(reference_seq, config)
-        select_sequence_mayo(T1_seq, config)
-        select_sequence_mayo(T2_seq, config)
+        # select_sequence_mayo(reference_seq, config)
+        # select_sequence_mayo(T1_seq, config)
+        # select_sequence_mayo(T2_seq, config)
+
+        output_root_path_resampled = config["mayo_resample_output"]
+        # resample_runner(reference_seq, input_root_path, output_root_path_resampled, config)
 
         output_root_path_registered = config["mayo_registration_output"]
-        registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
+        registration_runner(reference_seq, output_root_path_resampled, output_root_path_registered, config)
 
         output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
         skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)

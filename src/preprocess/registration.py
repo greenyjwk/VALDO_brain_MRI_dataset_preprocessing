@@ -1,6 +1,7 @@
 import shutil
 import os
 import ants
+import json
 import re
 
 def registration_runner(reference_seq, input_root_path, output_root_path, config):
@@ -64,8 +65,14 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         shutil.copy(reference_path, os.path.join(output_root_path, uid, reference_file))
         
 def main():
+    
+    config_path = '/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json'
+    with open(config_path, 'r') as config_file:
+        config = json.load(config_file)
+
     reference_seq = "T2S"
-    output_root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered"
+    # output_root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered"
+    output_root_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered_temp"
     registration_runner(reference_seq, output_root_path)
     
 if __name__ == "__main__":

@@ -12,6 +12,7 @@
     "mayo_t2": "SAG 3D T2 SPACE",
     "registration_type": "SyN",
     "mayo_TE_frame": 2,
+    "mayo_resample_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_resampled",
     "mayo_registration_output": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_registered",
     "mayo_stack_order": ["3D_SAG_T1_MPRAGE_1MM", "SAG_3D_T2_SPACE", "Axial_3TE_T2_STAR"]
 }

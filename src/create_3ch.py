@@ -8,7 +8,7 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
     parser.add_argument('--root_path', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction")
-    parser.add_argument('--output_dir', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked")
+    parser.add_argument('--output_dir', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_temp")
     parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
     parser.add_argument('--config_path', type=str, required=False, default="/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
     args = parser.parse_args()
