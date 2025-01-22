@@ -1,5 +1,9 @@
 # brain MRI Preprocessing(VALDO Dataset/Mayo Dataset)
 
+
+
+## Registration_ANTs
+
 ## Setup for Skull Stripping
 - The SynthStrip, skull stripping module, needs to be installed. <URL> https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/
 - Instructino Guide: https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
@@ -10,7 +14,7 @@
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
 
-## ANT
+## Bias Field Correction_ANT
 `git clone https://github.com/ANTsX/ANTs.git`
 
 ```python
