@@ -1,6 +1,7 @@
 # brain MRI Preprocessing(VALDO Dataset/Mayo Dataset)
 
-
+## Resampling_SimgpleITK
+- Resample Guideline: https://simpleitk.org/doxygen/v2_4/html/classitk_1_1simple_1_1ResampleImageFilter.html
 
 ## Registration_ANTs
 - Registration Guideline: https://antspy.readthedocs.io/en/latest/registration.html
