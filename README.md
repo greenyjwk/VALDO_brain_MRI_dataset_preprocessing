@@ -14,7 +14,7 @@
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
 
-## Bias Field Correction_ANT
+## Bias Field Correction_ANTs
 `git clone https://github.com/ANTsX/ANTs.git`
 
 ```python
