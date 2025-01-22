@@ -1,5 +1,11 @@
 # brain MRI Preprocessing(VALDO Dataset/Mayo Dataset)
 
+## Resampling_SimgpleITK
+- Resample Guideline: https://simpleitk.org/doxygen/v2_4/html/classitk_1_1simple_1_1ResampleImageFilter.html
+
+## Registration_ANTs
+- Registration Guideline: https://antspy.readthedocs.io/en/latest/registration.html
+
 ## Setup for Skull Stripping
 - The SynthStrip, skull stripping module, needs to be installed. <URL> https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/
 - Instructino Guide: https://surfer.nmr.mgh.harvard.edu/fswiki/rel6downloads
@@ -10,7 +16,7 @@
 `export FREESURFER_HOME= #The directory that 'freesurfer' is located` \
 `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
 
-## ANT
+## Bias Field Correction_ANTs
 `git clone https://github.com/ANTsX/ANTs.git`
 
 ```python
