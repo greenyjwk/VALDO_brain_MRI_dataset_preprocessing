@@ -1,25 +1,21 @@
-import os
-import sys
 import json
 import argparse
-import subprocess
 from preprocess.registration import registration_runner
-from preprocess.skull_stripped import skull_stripped_runner
+from preprocess.skull_stripped_original import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
 from preprocess.select_sequence import select_sequence_valdo
-from preprocess.resample import resample_runner
 
 # def setup_freesurfer():
 #     # Set the FREESURFER_HOME environment variable
 #     os.environ['FREESURFER_HOME'] = '/mnt/storage/ji/freesurfer'
-    
+
 #     # Source the SetUpFreeSurfer.sh script
 #     setup_script = os.path.join(os.environ['FREESURFER_HOME'], 'SetUpFreeSurfer.sh')
 #     command = f"source {setup_script} && echo $FREESURFER_HOME"
-    
+
 #     # Run the command in a shell
 #     result = subprocess.run(command, shell=True, executable='/bin/bash', capture_output=True, text=True)
-    
+
 #     if result.returncode == 0:
 #         print("FREESURFER_HOME is set to:", result.stdout.strip())
 #     else:
@@ -43,15 +39,17 @@ def main():
         input_root_path = config["valdo_input_output_src"]
         reference_seq = config["valdo_registration_reference"]
             
-        select_sequence_valdo('T1', config)
-        select_sequence_valdo("T2", config)
-        select_sequence_valdo('T2S', config)
+        # select_sequence_valdo('T1', config)
+        # select_sequence_valdo("T2", config)
+        # select_sequence_valdo('T2S', config)
         
         output_root_path_registered = config["valdo_registration_output"]
-        registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
+        # registration_runner(reference_seq, input_root_path, output_root_path_registered, config)
         
-        output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
-        skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
+        # output_root_path_skull_stripped = output_root_path_registered.replace("registered_temp", "skull_stripped_temp")
+        output_root_path_skull_stripped = input_root_path + "_skull_stripped"
+        # skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
+        skull_stripped_runner(input_root_path, output_root_path_skull_stripped)
         
         output_root_path_bias_field_correction = output_root_path_skull_stripped.replace("skull_stripped", "bias_field_correction")
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)
@@ -83,11 +81,11 @@ if __name__ == "__main__":
     main()
     
 '''
-    For skull-stripping environment variable, please run the following commands in the terminal.
+For skull-stripping environment variable, please run the following commands in the terminal.
 
-    FREESURFER_HOME=/mnt/storage/ji/freesurfer
-    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    or
-    FREESURFER_HOME=/media/Datacenter_storage/Ji/freesurfer
-    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-    '''
+FREESURFER_HOME=/mnt/storage/ji/freesurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
+or
+FREESURFER_HOME=/media/Datacenter_storage/Ji/freesurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
+'''

@@ -2,7 +2,8 @@ import shutil
 import os
 
 def select_sequence_valdo(sequence, config):
-    root_path = "/mnt/storage/cmb_segmentation_dataset/Task2"
+    # root_path = "/mnt/storage/cmb_segmentation_dataset/Task2"
+    root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_1mm_original"
     output_dir = config["valdo_input_output_src"]
 
     if not os.path.exists(output_dir):
