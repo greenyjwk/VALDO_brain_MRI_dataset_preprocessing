@@ -49,7 +49,7 @@ def main():
         # output_root_path_skull_stripped = output_root_path_registered.replace("registered_temp", "skull_stripped_temp")
         output_root_path_skull_stripped = input_root_path + "_skull_stripped"
         # skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
-        skull_stripped_runner(input_root_path, output_root_path_skull_stripped)
+        # skull_stripped_runner(input_root_path, output_root_path_skull_stripped)
         
         output_root_path_bias_field_correction = output_root_path_skull_stripped.replace("skull_stripped", "bias_field_correction")
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)

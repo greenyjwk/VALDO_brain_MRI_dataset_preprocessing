@@ -23,6 +23,8 @@ def skull_stripped_runner(root_path, output_root_path):
                 os.mkdir(os.path.join(output_root_path, uid))
 
         for file in os.listdir(os.path.join(root_path, uid)):
+            if file.endswith("CMB.nii.gz"):
+                continue
             file_path = os.path.join(os.path.join(root_path, uid), file)
             output_file_path = os.path.join(output_root_path, uid, file)
             command = ['mri_synthstrip', '-i', file_path, '-o', output_file_path]
