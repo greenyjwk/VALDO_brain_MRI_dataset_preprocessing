@@ -7,31 +7,30 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
-<<<<<<< HEAD
-    parser.add_argument('--root_path', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction")
-    parser.add_argument('--output_dir', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_temp")
+    # parser.add_argument('--root_path', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_bias_field_correction")
+    # parser.add_argument('--output_dir', type=str, required=False, default="/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked")
+    # parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
+    # parser.add_argument('--config_path', type=str, required=False, default="/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
+# =======
     parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
-    parser.add_argument('--config_path', type=str, required=False, default="/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
-=======
-    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)
-    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_bias_field_correction")
-    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_stacked")
+    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked")
     parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
->>>>>>> 179d972b1d5298f7cb50ad3bce157c138f6460ae
+# >>>>>>> 179d972b1d5298f7cb50ad3bce157c138f6460ae
     args = parser.parse_args()
 
     dataset = args.dataset
     
     if dataset == 'mayo':
         root = "/media/Datacenter_storage/Ji"
-        src_path = root + '/' + args.src_path
-        output_dir = root + '/' + args.output_path
-        config_path = root + '/' + args.config_path
+        src_path = root + args.src_path
+        output_dir = root + args.output_path
+        config_path = root + args.config_path
     elif dataset == "valdo":
         root = "/mnt/storage/ji"
-        src_path = root + '/' + args.src_path
-        output_dir = root + '/' + args.output_path
-        config_path = root + '/' + args.config_path
+        src_path = root + args.src_path
+        output_dir = root + args.output_path
+        config_path = root + args.config_path
     
     # config file
     with open(config_path, 'r') as config_file:
@@ -60,6 +59,13 @@ def main():
             nii2 = glob.glob(os.path.join(subdir_path, f"{config['valdo_stack_order'][1]}*.nii.gz"))
             nii3 = glob.glob(os.path.join(subdir_path, f"{config['valdo_stack_order'][2]}*.nii.gz"))
         
+        if nii1 == [] or nii2 == [] or nii3 == []:
+            continue
+        print()
+        print(uid)
+        print(nii1)
+        print(nii2)
+        print(nii3)
         nii1 = nib.load(nii1[0])
         nii2 = nib.load(nii2[0])
         nii3 = nib.load(nii3[0])

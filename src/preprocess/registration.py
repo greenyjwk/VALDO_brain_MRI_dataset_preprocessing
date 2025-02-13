@@ -1,3 +1,4 @@
+import sys
 import shutil
 import os
 import ants
@@ -34,6 +35,10 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         reference_path = fixed
         moving1 = os.path.join(input_root_path, uid, moving_files[0])
         moving2 = os.path.join(input_root_path, uid, moving_files[1])
+        
+        print("refrence_path ", reference_path)
+        print("moving1 ", moving1)
+        print("moving2 ", moving2)
     
         fixed = ants.image_read(fixed)
         moving1 = ants.image_read(moving1)
@@ -48,23 +53,25 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         if not os.path.exists(os.path.join(output_root_path, uid)):
             os.mkdir(os.path.join(output_root_path, uid))
 
-        # registration for T1
-        # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
-        registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
-        aligned_volume_1 = registration_1['warpedmovout']
-        ants.image_write(aligned_volume_1, os.path.join(output_root_path, uid, moving_files[0]))
+        try:
+            # registration for T1
+            # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
+            registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
+            aligned_volume_1 = registration_1['warpedmovout']
+            ants.image_write(aligned_volume_1, os.path.join(output_root_path, uid, moving_files[0]))
 
-        # registration for T2
-        # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
-        registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform=config["registration_type"])
-        aligned_volume_T2 = registration_T2['warpedmovout']
-        ants.image_write(aligned_volume_T2, os.path.join(output_root_path, uid, moving_files[1]))
-        
-        # copy and paste T2S to the output directory
-        shutil.copy(reference_path, os.path.join(output_root_path, uid, reference_file))
+            # registration for T2
+            registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform=config["registration_type"])
+            aligned_volume_T2 = registration_T2['warpedmovout']
+            ants.image_write(aligned_volume_T2, os.path.join(output_root_path, uid, moving_files[1]))
+            
+            # copy and paste T2S to the output directory
+            shutil.copy(reference_path, os.path.join(output_root_path, uid, reference_file))
+        except RuntimeError as e:
+            print(f"Registration for T2 failed for {uid} with error: {e}")
+            continue
         
 def main():
-    
     config_path = '/media/Datacenter_storage/Ji/VALDO_brain_MRI_dataset_preprocessing/configs/config.json'
     with open(config_path, 'r') as config_file:
         config = json.load(config_file)

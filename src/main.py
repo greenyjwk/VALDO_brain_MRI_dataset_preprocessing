@@ -27,7 +27,7 @@ from preprocess.resample import resample_runner
 
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
-    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)    
+    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)    
     args = parser.parse_args()
 
     if args.dataset == 'mayo':
