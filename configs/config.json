@@ -1,9 +1,9 @@
 {
     "dataset": "mayo",
     
-    "valdo_input_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo",
+    "valdo_input_output_src": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA",
     "valdo_registration_reference": "T2S",
-    "valdo_registration_output": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered",
+    "valdo_registration_output": "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_registered_temp",
     "valdo_stack_order": ["T1", "T2", "T2S"],
 
     "mayo_input_output_src": "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo",

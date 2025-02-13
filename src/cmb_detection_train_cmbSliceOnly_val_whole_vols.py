@@ -12,12 +12,17 @@ def get_instance_bounding_boxes(mask):
     # Label connected components
     labeled_mask, num_labels = ndimage.label(mask)
     bboxes = []
+    expand = 1
     for label in range(1, num_labels + 1):
         instance_mask = labeled_mask == label
         rows = np.any(instance_mask, axis=1)
         cols = np.any(instance_mask, axis=0)
         y_min, y_max = np.where(rows)[0][[0, -1]]
         x_min, x_max = np.where(cols)[0][[0, -1]]
+        x_min = x_min - expand
+        x_max = x_max + expand
+        y_min = y_min - expand
+        y_max = y_max + expand
         bboxes.append((x_min, y_min, x_max, y_max))
     return bboxes
 
@@ -41,17 +46,7 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, task):
     segmentation_mask = mask_data
     os.makedirs(os.path.join(output_dir, 'images', task), exist_ok=True)
     os.makedirs(os.path.join(output_dir, 'labels', task), exist_ok=True)
-
-    # for z in range(original_volume.shape[2]):
-    #     slice_data = original_volume[:, :, z, :]
-    #     # slice_data = original_volume[:, :, z, 2]    # choosing only one channel from 3 channels
-    #     mask_slice = segmentation_mask[:, :, z]
-
-    #     # Normalize and save the image slice
-    #     slice_data = (255 * ((slice_data - slice_data.min()) / (slice_data.max() - slice_data.min()))).astype(np.uint8)
-    #     slice_img = Image.fromarray(slice_data)
-    #     slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
-
+    os.makedirs(os.path.join(output_dir, 'masks', task), exist_ok=True)
 
     for z in range(original_volume.shape[2]):
         # Get the slice with all channels
@@ -79,22 +74,21 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, task):
         slice_img = Image.fromarray(normalized_slice, mode='RGB')  # Explicitly specify RGB mode
         slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
         
-
-
-
+        mask_slice = Image.fromarray(mask_slice.astype(np.uint8) * 255, mode='L')
+        mask_slice.save(os.path.join(output_dir, 'masks', task, f'{subject_id}_slice_{z:03d}.png'))
+        
         # Get 2D bounding boxes for each instance in this slice
         bboxes = get_instance_bounding_boxes(mask_slice)
-
         if bboxes:
             # Convert to YOLO format
-            img_height, img_width, ch = slice_data.shape
+            img_height, img_width, _ = slice_data.shape
             yolo_bboxes = []
             for bbox in bboxes:
                 x_center = (bbox[0] + bbox[2]) / (2 * img_width)
                 y_center = (bbox[1] + bbox[3]) / (2 * img_height)
                 width = (bbox[2] - bbox[0]) / img_width
                 height = (bbox[3] - bbox[1]) / img_height
-                yolo_bboxes.append(f"0 {x_center} {y_center} {width} {height}")
+                yolo_bboxes.append(f"0 {x_center} {y_center} {repr(width)} {repr(height)}")
 
             # Save YOLO annotation
             with open(os.path.join(output_dir, 'labels', task, f'{subject_id}_slice_{z:03d}.txt'), 'w') as f:
@@ -115,9 +109,6 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
         # Construct the corresponding volume file path
         vol_path = os.path.join(preprocessed_img_dir, train_subject_id, f'{train_subject_id}.nii.gz')   # preprcessed img path
         train_mask_path =  os.path.join(original_data_dir, train_subject_id, train_mask_path)           # original mask path
-
-        print("vol_path", vol_path)
-        print("train_mask_path", train_mask_path)
         
         if os.path.exists(vol_path):
             process_nifti(train_mask_path, vol_path, output_dir, train_subject_id, task='train')
@@ -130,8 +121,6 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
         val_mask_path = val_mask_path.split('_')[:2]
         val_mask_path = val_mask_path[0] + '_' + val_mask_path[1] + '_CMB.nii.gz'
 
-        # vol_path = os.path.join(preprocessed_img_dir, f'{val_subject_id}_space-T2S_desc-masked_T2S.nii.gz')
-        # vol_path = os.path.join(preprocessed_img_dir, val_subject_id, f'{val_subject_id}_space-T2S_desc-masked_T2S.nii.gz')
         vol_path = os.path.join(preprocessed_img_dir, val_subject_id, f'{val_subject_id}.nii.gz') # For the 3 channel volume
         val_mask_path =  os.path.join(original_data_dir, val_subject_id, val_mask_path)
 
@@ -148,24 +137,24 @@ def get_train_val(root_dir):
         for file in files:
             if file == ".DS_Store":
                 continue
-            file_path = os.path.join(subdir, file)
+            if file.endswith("_CMB.nii.gz"):
+                file_path = os.path.join(subdir, file)
 
-            # Load the NIfTI file
-            nifti_img = nib.load(file_path)
-            nifti_data = nifti_img.get_fdata()
-            unique_values = np.unique(nifti_data)
+                # Load the NIfTI file
+                nifti_img = nib.load(file_path)
+                nifti_data = nifti_img.get_fdata()
+                unique_values = np.unique(nifti_data)
 
-            # Check the unique values and categorize the file
-            if set(unique_values) == {0, 1}:
-                cmb_group.append(file_path)
-            elif set(unique_values) == {0}:
-                non_cmb_group.append(file_path)
+                # Check the unique values and categorize the file
+                if set(unique_values) != {0}:
+                    cmb_group.append(file_path)
+                elif set(unique_values) == {0}:
+                    non_cmb_group.append(file_path)
 
+    
     # Split the files into training and validation sets
-    train_cmb_group, val_cmb_group = train_test_split(cmb_group, test_size=0.2, random_state=42)
-    train_non_cmb_group, val_non_cmb_group = train_test_split(non_cmb_group, test_size=0.2, random_state=42)
-
-    # Combine the training and validation sets from both groups
+    train_cmb_group, val_cmb_group = train_test_split(cmb_group, test_size=0.15, random_state=42)
+    train_non_cmb_group, val_non_cmb_group= train_test_split(non_cmb_group, test_size=0.15, random_state=42)
     train_files = train_cmb_group + train_non_cmb_group
     val_files = val_cmb_group + val_non_cmb_group
 
@@ -180,9 +169,14 @@ def get_train_val(root_dir):
     return train_files, val_files
 
 def main():
-    original_data_dir = "/mnt/storage/cmb_segmentation_dataset/Task2"
-    preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_stacked"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_temp"
+    # original_data_dir = "/mnt/storage/cmb_segmentation_dataset/Task2"
+    # preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_stacked"
+    # output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_new_gt"
+    # process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
+
+    original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
+    preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_original"
     process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
 
 if __name__ == "__main__":
