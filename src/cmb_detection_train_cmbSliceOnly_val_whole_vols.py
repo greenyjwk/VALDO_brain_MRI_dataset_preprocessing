@@ -12,16 +12,17 @@ def get_instance_bounding_boxes(mask):
     # Label connected components
     labeled_mask, num_labels = ndimage.label(mask)
     bboxes = []
+    expand = 1
     for label in range(1, num_labels + 1):
         instance_mask = labeled_mask == label
         rows = np.any(instance_mask, axis=1)
         cols = np.any(instance_mask, axis=0)
         y_min, y_max = np.where(rows)[0][[0, -1]]
         x_min, x_max = np.where(cols)[0][[0, -1]]
-        x_min = x_min - 2
-        x_max = x_max + 2
-        y_min = y_min - 2
-        y_max = y_max + 2
+        x_min = x_min - expand
+        x_max = x_max + expand
+        y_min = y_min - expand
+        y_max = y_max + expand
         bboxes.append((x_min, y_min, x_max, y_max))
     return bboxes
 
@@ -120,8 +121,6 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
         val_mask_path = val_mask_path.split('_')[:2]
         val_mask_path = val_mask_path[0] + '_' + val_mask_path[1] + '_CMB.nii.gz'
 
-        # vol_path = os.path.join(preprocessed_img_dir, f'{val_subject_id}_space-T2S_desc-masked_T2S.nii.gz')
-        # vol_path = os.path.join(preprocessed_img_dir, val_subject_id, f'{val_subject_id}_space-T2S_desc-masked_T2S.nii.gz')
         vol_path = os.path.join(preprocessed_img_dir, val_subject_id, f'{val_subject_id}.nii.gz') # For the 3 channel volume
         val_mask_path =  os.path.join(original_data_dir, val_subject_id, val_mask_path)
 
@@ -159,12 +158,6 @@ def get_train_val(root_dir):
     train_files = train_cmb_group + train_non_cmb_group
     val_files = val_cmb_group + val_non_cmb_group
 
-    # print(train_files)
-    # print()
-    # print()
-    # print(val_files)
-    # sys.exit()
-    
     # Print the results
     print("Training files:")
     for file in train_files:
@@ -181,9 +174,9 @@ def main():
     # output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_new_gt"
     # process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
 
-    original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_1mm_0205"
-    preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_stacked_1mm"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_1mm_png_pm2_0205"
+    original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
+    preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_original"
     process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
 
 if __name__ == "__main__":

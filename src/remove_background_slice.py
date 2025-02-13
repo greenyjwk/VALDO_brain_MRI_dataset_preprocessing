@@ -1,8 +1,10 @@
 import os
 
-images_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_1mm_png_pm2_0205__temp/images/val"
-labels_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_1mm_png_pm2_0205__temp/labels/val"
-masks_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_1mm_png_pm2_0205__temp/masks/val"
+root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_all_slices"
+task = "val"
+images_dir = f"{root_path}/images/{task}"
+labels_dir = f"{root_path}/labels/{task}"
+masks_dir = f"{root_path}/masks/{task}"
 
 for label_file in os.listdir(labels_dir):
     label_path = os.path.join(labels_dir, label_file)
