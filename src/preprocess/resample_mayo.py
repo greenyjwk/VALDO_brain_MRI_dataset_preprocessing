@@ -2,10 +2,11 @@ import os
 import re
 import json
 import SimpleITK as sitk
+import numpy as np
 import sys
 import shutil
 
-def resample_runner(reference_seq, input_root_path, output_root_path, config):
+def resample_runner(input_root_path, output_root_path, reference_seq, config):
     
     reference_seq = re.sub(r'\s+', '_', reference_seq)
 
@@ -52,21 +53,45 @@ def resample_runner(reference_seq, input_root_path, output_root_path, config):
         if fixed.GetDimension() == 4:
             fixed = fixed[:,:,:,config['mayo_TE_frame']]  # Selecting 3rd TE
             
+        fixed_spacing = fixed.GetSpacing()
 
-        # Set up the resampling filter
-        resample = sitk.ResampleImageFilter()
-        resample.SetOutputSpacing(fixed.GetSpacing())       # Match spacing of B
-        resample.SetSize(fixed.GetSize())                   # Match size of B
-        resample.SetOutputOrigin(fixed.GetOrigin())         # Match origin of B
-        resample.SetOutputDirection(fixed.GetDirection())   # Match direction of B
-        resample.SetInterpolator(sitk.sitkLinear)             # Use linear interpolation (or other types if needed)
+        # Set up the resampling filter for moving image 1
+        resample1 = sitk.ResampleImageFilter()
+        moving1_size = moving1.GetSize()  
+        moving1_spacing = moving1.GetSpacing()
+        moving1_new_size = [
+            int(np.round(moving1_size[0] * ( moving1_spacing[0]/ fixed_spacing[0]))),
+            int(np.round(moving1_size[1] * ( moving1_spacing[1]/ fixed_spacing[1]))),
+            int(np.round(moving1_size[2] * ( moving1_spacing[2]/ fixed_spacing[2]))),
+        ]
+        resample1.SetOutputSpacing(fixed.GetSpacing())       # Match spacing of B
+        resample1.SetSize(moving1_new_size)                   # Match size of B
+        resample1.SetOutputOrigin(fixed.GetOrigin())         # Match origin of B
+        resample1.SetOutputDirection(fixed.GetDirection())   # Match direction of B
+        resample1.SetInterpolator(sitk.sitkLinear)             # Use linear interpolation (or other types if needed)
+
+
+        # Set up the resampling filter for moving image 2
+        resample2 = sitk.ResampleImageFilter()  
+        moving2_size = moving2.GetSize()  
+        moving2_spacing = moving2.GetSpacing()
+        moving2_new_size = [
+            int(np.round(moving2_size[0] * (moving2_spacing[0]/ fixed_spacing[0]))),
+            int(np.round(moving2_size[1] * (moving2_spacing[1]/ fixed_spacing[1]))),
+            int(np.round(moving2_size[2] * (moving2_spacing[2]/ fixed_spacing[2]))),
+        ]
+        resample2.SetOutputSpacing(fixed.GetSpacing())       # Match spacing of B
+        resample2.SetSize(moving2_new_size)                   # Match size of B
+        resample2.SetOutputOrigin(fixed.GetOrigin())         # Match origin of B
+        resample2.SetOutputDirection(fixed.GetDirection())   # Match direction of B
+        resample2.SetInterpolator(sitk.sitkLinear)             # Use linear interpolation (or other types if needed)
 
 
         # Resample image A and B
-        resampled_A = resample.Execute(moving1)
+        resampled_A = resample1.Execute(moving1)
         sitk.WriteImage(resampled_A, output_resampled_A)
 
-        resampled_B = resample.Execute(moving2)
+        resampled_B = resample2.Execute(moving2)
         sitk.WriteImage(resampled_B, output_resampled_B)
         
         # copy and paste T2S to the output directory
@@ -84,6 +109,8 @@ def main():
         reference_seq = config["mayo_registration_reference"]
         input_root_path = config["mayo_input_output_src"]
         output_root_path_resampled = config["mayo_resample_output"]
+        # if not os.path.exists(output_root_path_resampled):
+        #     os.makedirs(output_root_path_resampled)
         resample_runner(input_root_path, output_root_path_resampled, reference_seq, config)
     
 if __name__ == "__main__":

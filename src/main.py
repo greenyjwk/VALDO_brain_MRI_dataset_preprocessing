@@ -4,6 +4,7 @@ from preprocess.registration import registration_runner
 from preprocess.skull_stripped_original import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
 from preprocess.select_sequence import select_sequence_valdo
+from preprocess.select_sequence_mayo import select_sequence_mayo
 
 # def setup_freesurfer():
 #     # Set the FREESURFER_HOME environment variable

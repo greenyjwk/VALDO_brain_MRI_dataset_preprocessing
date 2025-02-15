@@ -34,22 +34,23 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
     width, height, _, ch = nifti_data.shape
 
     # bounding box size in pixels
-    bbox_size = 32
+    # bbox_size = 32
 
     for coord in coordinates:
-        x, y, z = coord
+        # x, y, z = coord
+        x, y, z, gt_width, gt_height = coord
 
         # Calculate center of the bounding box
         x_center, y_center = x, y
 
         # Calculate bounding box dimensions
-        bbox_width, bbox_height = bbox_size, bbox_size
+        gt_box_width, gt_box_height = gt_width, gt_height
 
         # YOLOv5 format (x_center, y)_center, bbox_width, bbox_height)
         x_center_norm = x_center / width
         y_center_norm = y_center / height
-        bbox_width_norm = bbox_width / width
-        bbox_height_norm = bbox_height / height
+        bbox_width_norm = gt_box_width / width
+        bbox_height_norm = gt_box_height / height
 
         label_path = os.path.join(output_dir, f"{base_name}_{z:d}.txt")
         print(f"Generating label file: {label_path}")
