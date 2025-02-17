@@ -3,7 +3,6 @@ import re
 import json
 import SimpleITK as sitk
 import numpy as np
-import sys
 import shutil
 
 def resample_runner(input_root_path, output_root_path, reference_seq, config):
@@ -64,12 +63,11 @@ def resample_runner(input_root_path, output_root_path, reference_seq, config):
             int(np.round(moving1_size[1] * ( moving1_spacing[1]/ fixed_spacing[1]))),
             int(np.round(moving1_size[2] * ( moving1_spacing[2]/ fixed_spacing[2]))),
         ]
-        resample1.SetOutputSpacing(fixed.GetSpacing())       # Match spacing of B
-        resample1.SetSize(moving1_new_size)                   # Match size of B
-        resample1.SetOutputOrigin(fixed.GetOrigin())         # Match origin of B
-        resample1.SetOutputDirection(fixed.GetDirection())   # Match direction of B
-        resample1.SetInterpolator(sitk.sitkLinear)             # Use linear interpolation (or other types if needed)
-
+        resample1.SetOutputSpacing(fixed.GetSpacing())      # Match spacing of B
+        resample1.SetSize(moving1_new_size)                 # Match size of B
+        resample1.SetOutputOrigin(fixed.GetOrigin())        # Match origin of B
+        resample1.SetOutputDirection(fixed.GetDirection())  # Match direction of B
+        resample1.SetInterpolator(sitk.sitkLinear)          # Use linear interpolation (or other types if needed)
 
         # Set up the resampling filter for moving image 2
         resample2 = sitk.ResampleImageFilter()  
@@ -80,12 +78,11 @@ def resample_runner(input_root_path, output_root_path, reference_seq, config):
             int(np.round(moving2_size[1] * (moving2_spacing[1]/ fixed_spacing[1]))),
             int(np.round(moving2_size[2] * (moving2_spacing[2]/ fixed_spacing[2]))),
         ]
-        resample2.SetOutputSpacing(fixed.GetSpacing())       # Match spacing of B
-        resample2.SetSize(moving2_new_size)                   # Match size of B
-        resample2.SetOutputOrigin(fixed.GetOrigin())         # Match origin of B
-        resample2.SetOutputDirection(fixed.GetDirection())   # Match direction of B
-        resample2.SetInterpolator(sitk.sitkLinear)             # Use linear interpolation (or other types if needed)
-
+        resample2.SetOutputSpacing(fixed.GetSpacing())      # Match spacing of B
+        resample2.SetSize(moving2_new_size)                 # Match size of B
+        resample2.SetOutputOrigin(fixed.GetOrigin())        # Match origin of B
+        resample2.SetOutputDirection(fixed.GetDirection())  # Match direction of B
+        resample2.SetInterpolator(sitk.sitkLinear)          # Use linear interpolation (or other types if needed)
 
         # Resample image A and B
         resampled_A = resample1.Execute(moving1)
@@ -109,8 +106,6 @@ def main():
         reference_seq = config["mayo_registration_reference"]
         input_root_path = config["mayo_input_output_src"]
         output_root_path_resampled = config["mayo_resample_output"]
-        # if not os.path.exists(output_root_path_resampled):
-        #     os.makedirs(output_root_path_resampled)
         resample_runner(input_root_path, output_root_path_resampled, reference_seq, config)
     
 if __name__ == "__main__":

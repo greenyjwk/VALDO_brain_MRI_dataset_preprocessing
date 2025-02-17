@@ -5,13 +5,18 @@ import numpy as np
 import json
 from PIL import Image
 
-def extract_slices(nifti_data):
+def extract_slices(nifti_data, T2S_only=False):
     # if len(nifti_data.shape) != 3:
     #     raise ValueError("Only 3D NIfTI files are supported!")
-    slices = [nifti_data[:, :, i, :] for i in range(nifti_data.shape[2])]
+
+    if T2S_only:
+        last_channel = nifti_data[:, :, :, -1]
+        slices = [last_channel[:, :, i] for i in range(last_channel.shape[2])]
+    else:
+        slices = [nifti_data[:, :, i, :] for i in range(nifti_data.shape[2])]
     return slices
 
-def save_slices_as_png(slices, output_dir, base_name):
+def save_slices_as_png(slices, output_dir, base_name, T2S_only):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     for i, slice in enumerate(slices):        
@@ -20,7 +25,11 @@ def save_slices_as_png(slices, output_dir, base_name):
         But YOLO itself does scaling, so it might be deleted in the future.
         '''
         slice_normalized = (slice - np.min(slice)) / (np.max(slice) - np.min(slice))
-        img = Image.fromarray(np.uint8(slice_normalized * 255), mode="RGB")
+        
+        if T2S_only:
+            img = Image.fromarray(np.uint8(slice_normalized * 255), mode="L")  # Use mode "L" for grayscale
+        else:
+            img = Image.fromarray(np.uint8(slice_normalized * 255), mode="RGB")
         
         img = img.rotate(90, expand=True)
         modified_name = base_name.split('_')[0] + "_" + f"{i:d}.png"
@@ -57,15 +66,16 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
         with open(label_path, 'a') as f:
             f.write(f"0 {x_center_norm:.6f} {y_center_norm:.6f} {bbox_width_norm:.6f} {bbox_height_norm:.6f}\n")
 
-def main():
+def main(T2S_only=False):
     parser = argparse.ArgumentParser(description='Generate YOLO labels from Nifti files')
-    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked')
-    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/mayo_yolo_dataset_temp')
+    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled')
+    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo')
     parser.add_argument("--output_dir_end_name", type=str, default='yolo_dataset')
     args = parser.parse_args()
 
     nifti_dir = args.nifti_dir
-    output_dir = os.path.join(args.output_dir, args.output_dir_end_name, "images", "test")
+    # output_dir = os.path.join(args.output_dir, args.output_dir_end_name, "images", "test")
+    output_dir = os.path.join(args.output_dir, "images", "test")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -78,13 +88,14 @@ def main():
             if not os.path.exists(nifti_path):
                 print(f"File {nifti_path} not found!")
                 continue
-            slices = extract_slices(nifti_data)
+            slices = extract_slices(nifti_data, T2S_only)
             base_name = nifti_file.split('.')[0]
-            save_slices_as_png(slices, output_dir, base_name)
+            save_slices_as_png(slices, output_dir, base_name, T2S_only)
 
     label_dir = os.path.join(args.output_dir, "cmb_coordinates")
     label_files = [f for f in os.listdir(label_dir) if f.endswith('.json')]
-    output_label_dir = os.path.join(args.output_dir, args.output_dir_end_name, "labels", "test")
+    # output_label_dir = os.path.join(args.output_dir, args.output_dir_end_name, "labels", "test")
+    output_label_dir = os.path.join(args.output_dir, "labels", "test")
 
     # Ensure the output directory exists
     if not os.path.exists(output_label_dir):
@@ -98,6 +109,7 @@ def main():
         generate_yolo_labels(label_path, nifti_data, output_label_dir)
 
 if __name__ == "__main__":
-    main()
+    T2S_only = True
+    main(T2S_only)
 
 # python3 Mayo_for_YOLO.py --nifti_dir /media/Datacenter_storage/Ji/microbleeds2/DicomHandler/NIFTI_splitted --output_dir /media/Datacenter_storage/Ji/mayo_yolo_dataset --output_dir_end_name yolo_dataset_frame2

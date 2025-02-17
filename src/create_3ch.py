@@ -10,17 +10,18 @@ import re
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
     parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
+    
     # Mayo
-    # parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled")
-    # parser.add_argument('--output_dir', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled")
-    # parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
+    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled")
+    parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
 
     # Valdo
-    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_bias_field_correction")
-    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked")
-    parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
-    args = parser.parse_args()
+    # parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_bias_field_correction")
+    # parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked")
+    # parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
 
+    args = parser.parse_args()
     dataset = args.dataset
     
     if dataset == 'mayo':
@@ -61,6 +62,10 @@ def main():
             print(nii2)
             print(nii3)
 
+        if not nii1 or not nii2 or not nii3:
+            print(f"Files not found for subdir: {uid}")
+            continue
+
         nii1 = nib.load(nii1[0])
         nii2 = nib.load(nii2[0])
         nii3 = nib.load(nii3[0])
@@ -74,7 +79,7 @@ def main():
         combined_data = np.stack([data1, data2, data3], axis=-1)
 
         # Create a new NIfTI image
-        combined_nii = nib.Nifti1Image(combined_data, affine=nii1.affine)
+        combined_nii = nib.Nifti1Image(combined_data, affine=nii3.affine)
 
         # Save the combined image
         output_file = os.path.join(output_dir, uid, f"{uid}.nii.gz")
