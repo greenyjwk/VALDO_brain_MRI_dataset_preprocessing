@@ -9,17 +9,17 @@ import re
 
 def main():
     parser = argparse.ArgumentParser(description="Create 3-channel NIfTI images")
-    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
+    parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='valdo', required=False)
     
     # Mayo
-    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled")
-    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled")
-    parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
+    # parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled")
+    # parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled")
+    # parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
 
     # Valdo
-    # parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_bias_field_correction")
-    # parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked")
-    # parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
+    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_bias_field_correction")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked_T2S_only")
+    parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
 
     args = parser.parse_args()
     dataset = args.dataset

@@ -26,7 +26,7 @@ def get_instance_bounding_boxes(mask):
         bboxes.append((x_min, y_min, x_max, y_max))
     return bboxes
 
-def process_nifti(mask_path, vol_path, output_dir, subject_id, task):
+def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
     global num_512
     global num_256
     # Load the NIfTI files
@@ -71,8 +71,13 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, task):
         normalized_slice = np.ascontiguousarray(normalized_slice)
         
         # Save the image slice
-        slice_img = Image.fromarray(normalized_slice, mode='RGB')  # Explicitly specify RGB mode
-        slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
+        if T2S_only:
+            normalized_slice = normalized_slice[:, :, -1]  # Keep only the first channel
+            slice_img = Image.fromarray(normalized_slice, mode='L')  # Explicitly specify RGB mode
+            slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))    
+        else:
+            slice_img = Image.fromarray(normalized_slice, mode='RGB')  # Explicitly specify RGB mode
+            slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
         
         mask_slice = Image.fromarray(mask_slice.astype(np.uint8) * 255, mode='L')
         mask_slice.save(os.path.join(output_dir, 'masks', task, f'{subject_id}_slice_{z:03d}.png'))
@@ -97,7 +102,7 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, task):
             with open(os.path.join(output_dir, 'labels', task, f'{subject_id}_slice_{z:03d}.txt'), 'w') as f:
                 pass
 
-def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
+def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only):
     train, val = get_train_val(original_data_dir)
 
     for train_mask_path in train:
@@ -111,7 +116,7 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
         train_mask_path =  os.path.join(original_data_dir, train_subject_id, train_mask_path)           # original mask path
         
         if os.path.exists(vol_path):
-            process_nifti(train_mask_path, vol_path, output_dir, train_subject_id, task='train')
+            process_nifti(train_mask_path, vol_path, output_dir, train_subject_id, T2S_only, task='train')
         else:
             print(f"Volume file not found for subject {train_subject_id}")
 
@@ -125,7 +130,7 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir):
         val_mask_path =  os.path.join(original_data_dir, val_subject_id, val_mask_path)
 
         if os.path.exists(vol_path):
-            process_nifti(val_mask_path, vol_path, output_dir, val_subject_id, task='val')
+            process_nifti(val_mask_path, vol_path, output_dir, val_subject_id, T2S_only, task='val')
         else:
             print(f"Volume file not found for subject {val_subject_id}")
 
@@ -168,16 +173,11 @@ def get_train_val(root_dir):
         print(file)
     return train_files, val_files
 
-def main():
-    # original_data_dir = "/mnt/storage/cmb_segmentation_dataset/Task2"
-    # preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_stacked"
-    # output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/YOLO_valdo_stacked_new_gt"
-    # process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
-
+def main(T2S_only):
     original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
     preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_original"
-    process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir)
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_T2S_only"
+    process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only)
 
 if __name__ == "__main__":
-    main()
+    main(T2S_only=True)
