@@ -12,7 +12,7 @@ def get_instance_bounding_boxes(mask):
     # Label connected components
     labeled_mask, num_labels = ndimage.label(mask)
     bboxes = []
-    expand = 1
+    expand = 3
     for label in range(1, num_labels + 1):
         instance_mask = labeled_mask == label
         rows = np.any(instance_mask, axis=1)
@@ -176,7 +176,7 @@ def get_train_val(root_dir):
 def main(T2S_only):
     original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
     preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_T2S_only"
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_T2S_only_val"
     process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only)
 
 if __name__ == "__main__":

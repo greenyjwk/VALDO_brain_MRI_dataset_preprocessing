@@ -1,6 +1,6 @@
 import os
 
-root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_all_slices"
+root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_T2S_only"
 task = "val"
 images_dir = f"{root_path}/images/{task}"
 labels_dir = f"{root_path}/labels/{task}"
