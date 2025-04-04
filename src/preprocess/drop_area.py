@@ -5,9 +5,9 @@ import sys
 def main():
     # Define the paths
     task = 'val'
-    area = 1
+    area = 3
     csv_file_path = '/mnt/storage/ji/valdo_resample_ALFA_bbox_distribution/cmb_patch_areas.csv'
-    labels_path = f'/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_small_patch_dropped/labels/{task}'
+    labels_path = f'/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_allSequence_cmb_slice_only_train_small_dropped/labels/{task}'
 
     # Read the CSV file and collect filenames and bounding boxes with area 1
     to_remove = []
