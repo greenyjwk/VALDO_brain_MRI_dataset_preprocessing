@@ -176,8 +176,8 @@ def get_train_val(root_dir):
 def main(T2S_only):
     original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
     preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_T2S_only_val"
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
     process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only)
 
 if __name__ == "__main__":
-    main(T2S_only=True)
+    main(T2S_only=False)

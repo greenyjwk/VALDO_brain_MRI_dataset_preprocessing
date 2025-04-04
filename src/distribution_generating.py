@@ -216,8 +216,8 @@ class CMBAreaCalculator:
         print(f"Frequency table saved to: {table_file}")
 
 def main():
-    base_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_all_slices"
-    output_dir = "/mnt/storage/ji/distribution/valdo_resample_ALFA_YOLO_PNG_all_slices"
+    base_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_small_patch_dropped"
+    output_dir = "/mnt/storage/ji/distribution/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_small_patch_dropped"
     
     calculator = CMBAreaCalculator(base_dir, output_dir)
     calculator.process_all_masks()
