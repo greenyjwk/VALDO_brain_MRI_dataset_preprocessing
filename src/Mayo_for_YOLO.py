@@ -6,9 +6,6 @@ import json
 from PIL import Image
 
 def extract_slices(nifti_data, T2S_only=False):
-    # if len(nifti_data.shape) != 3:
-    #     raise ValueError("Only 3D NIfTI files are supported!")
-
     if T2S_only:
         last_channel = nifti_data[:, :, :, -1]
         slices = [last_channel[:, :, i] for i in range(last_channel.shape[2])]
@@ -24,13 +21,18 @@ def save_slices_as_png(slices, output_dir, base_name, T2S_only):
         Normalize slice to 0-1 range before scaling to 0-255
         But YOLO itself does scaling, so it might be deleted in the future.
         '''
-        slice_normalized = (slice - np.min(slice)) / (np.max(slice) - np.min(slice))
-        
         if T2S_only:
+            slice_normalized = (slice - np.min(slice)) / (np.max(slice) - np.min(slice))
             img = Image.fromarray(np.uint8(slice_normalized * 255), mode="L")  # Use mode "L" for grayscale
         else:
+            normalized_channels = []
+            for i_ch in range(slice.shape[2]):
+                channel = slice[:,:,i_ch]
+                channel_normalized = (channel - np.min(channel)) / (np.max(channel) - np.min(channel))
+                normalized_channels.append(channel_normalized)
+            slice_normalized = np.stack(normalized_channels, axis=-1)
             img = Image.fromarray(np.uint8(slice_normalized * 255), mode="RGB")
-        
+
         img = img.rotate(90, expand=True)
         modified_name = base_name.split('_')[0] + "_" + f"{i:d}.png"
         img.save(os.path.join(output_dir, modified_name))
@@ -68,23 +70,29 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
 
 def main(T2S_only=False):
     parser = argparse.ArgumentParser(description='Generate YOLO labels from Nifti files')
-    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled')
-    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo')
+    parser.add_argument("--coordinate_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/cmb_coordinates')
+    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled_0325')
+    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence_ch_norm')
     parser.add_argument("--output_dir_end_name", type=str, default='yolo_dataset')
     args = parser.parse_args()
 
     nifti_dir = args.nifti_dir
-    # output_dir = os.path.join(args.output_dir, args.output_dir_end_name, "images", "test")
     output_dir = os.path.join(args.output_dir, "images", "test")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     for mrn in os.listdir(nifti_dir):
+        print("MRN", mrn)
         for nifti_file in os.listdir(os.path.join(nifti_dir, mrn)):
             nifti_path = os.path.join(nifti_dir, mrn, nifti_file)
             nifti_img = nib.load(nifti_path)
-            nifti_data = nifti_img.get_fdata()
 
+            try:
+                nifti_data = nifti_img.get_fdata()
+            except:
+                print(f"Error reading {nifti_path}")
+                continue 
+            
             if not os.path.exists(nifti_path):
                 print(f"File {nifti_path} not found!")
                 continue
@@ -92,9 +100,7 @@ def main(T2S_only=False):
             base_name = nifti_file.split('.')[0]
             save_slices_as_png(slices, output_dir, base_name, T2S_only)
 
-    label_dir = os.path.join(args.output_dir, "cmb_coordinates")
-    label_files = [f for f in os.listdir(label_dir) if f.endswith('.json')]
-    # output_label_dir = os.path.join(args.output_dir, args.output_dir_end_name, "labels", "test")
+    label_files = [f for f in os.listdir(args.coordinate_dir) if f.endswith('.json')]
     output_label_dir = os.path.join(args.output_dir, "labels", "test")
 
     # Ensure the output directory exists
@@ -102,14 +108,14 @@ def main(T2S_only=False):
         os.makedirs(output_label_dir)
 
     for label_file in label_files:
-        label_path = os.path.join(label_dir, label_file)
+        label_path = os.path.join(args.coordinate_dir, label_file)
         nifti_file = os.path.join(nifti_dir, label_file.replace(".json", ""), os.path.basename(label_file).replace('.json', '.nii.gz'))
         nifti_img = nib.load(nifti_file)
         nifti_data = nifti_img.get_fdata()
         generate_yolo_labels(label_path, nifti_data, output_label_dir)
 
 if __name__ == "__main__":
-    T2S_only = True
+    T2S_only = False
     main(T2S_only)
 
 # python3 Mayo_for_YOLO.py --nifti_dir /media/Datacenter_storage/Ji/microbleeds2/DicomHandler/NIFTI_splitted --output_dir /media/Datacenter_storage/Ji/mayo_yolo_dataset --output_dir_end_name yolo_dataset_frame2

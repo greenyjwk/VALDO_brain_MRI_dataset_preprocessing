@@ -24,7 +24,6 @@ def select_sequence_mayo(sequence, config):
             if not os.path.exists(mrn_path):            
                 os.makedirs(mrn_path)
             print(img)
-            
             print(mrn)
             shutil.copy(img, os.path.join(mrn_path, f"{sequence}_{mrn}.nii.gz"))
         else:

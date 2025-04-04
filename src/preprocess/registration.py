@@ -4,8 +4,10 @@ import os
 import ants
 import json
 import re
+import numpy as np
 
 def registration_runner(reference_seq, input_root_path, output_root_path, config):
+    print("Mayo Registration")
     reference_seq = re.sub(r'\s+', '_', reference_seq)
 
     if not os.path.exists(output_root_path):
@@ -31,8 +33,8 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
             print(f"Files not found for subdir: {uid}")
             continue
 
-        fixed = os.path.join(input_root_path, uid, reference_file)
-        reference_path = fixed
+        reference_path = os.path.join(input_root_path, uid, reference_file)
+        # reference_path = fixed
         moving1 = os.path.join(input_root_path, uid, moving_files[0])
         moving2 = os.path.join(input_root_path, uid, moving_files[1])
         
@@ -40,9 +42,13 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         print("moving1 ", moving1)
         print("moving2 ", moving2)
     
-        fixed = ants.image_read(fixed)
+        fixed = ants.image_read(reference_path)
         moving1 = ants.image_read(moving1)
         moving2 = ants.image_read(moving2)
+
+        # # Mirror moving1 and moving2 along the horizontal axis (left-right flip)
+        moving1 = ants.from_numpy(np.flip(moving1.numpy(), axis=0), spacing=moving1.spacing)
+        moving2 = ants.from_numpy(np.flip(moving2.numpy(), axis=0), spacing=moving2.spacing)           
 
         if config["dataset"] == 'mayo':
             if fixed.shape[3] > 1:
@@ -56,9 +62,9 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         try:
             # registration for T1
             # “SyN”: Symmetric normalization: Affine + deformable transformation, with mutual information as optimization metric.
-            registration_1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
-            aligned_volume_1 = registration_1['warpedmovout']   # Since the moving image is warped to the fixed image space
-            ants.image_write(aligned_volume_1, os.path.join(output_root_path, uid, moving_files[0]))
+            registration_T1 = ants.registration(fixed=fixed, moving=moving1, type_of_transform=config["registration_type"])
+            aligned_volume_T1 = registration_T1['warpedmovout']   # Since the moving image is warped to the fixed image space
+            ants.image_write(aligned_volume_T1, os.path.join(output_root_path, uid, moving_files[0]))
 
             # registration for T2
             registration_T2 = ants.registration(fixed=fixed, moving=moving2, type_of_transform=config["registration_type"])
