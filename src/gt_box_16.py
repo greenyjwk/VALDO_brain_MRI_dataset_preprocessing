@@ -1,9 +1,7 @@
 import os
 
-labels_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train/labels/val"
-
-fixed_width = 16 / 512
-fixed_height = 16 / 512
+labels_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/labels/train"
+fixed_width, fixed_height = 16 / 512, 16 / 512
 
 # Process each label file
 for filename in os.listdir(labels_dir):

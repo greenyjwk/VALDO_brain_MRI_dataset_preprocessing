@@ -1,6 +1,8 @@
 import os
 import cv2
 import numpy as np
+import sys
+import random
 
 IMG_SIZE = 512
 BOX_SIZE = 16
@@ -37,17 +39,13 @@ def has_overlap(box, boxes):
     return False
 
 def generate_brain_mask(image):
-    # Simple thresholding (assuming black background)
     mask = (image > 0).astype(np.uint8)
-
-    # Smooth the mask (optional but recommended)
     kernel = np.ones((5,5), np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
     return mask
 
-def generate_negative_samples(brain_mask, cmb_boxes):
+def generate_negative_samples(brain_mask):
     valid_coords = np.argwhere(brain_mask == 1)
     np.random.shuffle(valid_coords)
 
@@ -63,9 +61,6 @@ def generate_negative_samples(brain_mask, cmb_boxes):
 
         box_region = brain_mask[y1:y2, x1:x2]
         if box_region.shape != (BOX_SIZE, BOX_SIZE) or np.mean(box_region) < 0.95:
-            continue
-
-        if has_overlap((x1, y1, x2, y2), cmb_boxes):
             continue
 
         negatives.append((x1, y1, x2, y2))
@@ -90,34 +85,37 @@ def save_labels(output_path, original_labels, negative_boxes):
         f.writelines(lines)
 
 def main(images_path, labels_path, output_labels_path):
-    for filename in os.listdir(images_path):
+    
+    path_list = os.listdir(images_path)
+    random.shuffle(path_list)
+    negative_num = 100
+    for filename in path_list:
         if filename.endswith((".jpg", ".png")):
+            
             image_name = os.path.splitext(filename)[0]
             image_path = os.path.join(images_path, filename)
             label_path = os.path.join(labels_path, f"{image_name}.txt")
-            print(label_path)
             output_label_path = os.path.join(output_labels_path, f"{image_name}.txt")
-
+            print(label_path)            
             if not os.path.exists(label_path):
-                continue
+                open(label_path, "w").close()
 
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             brain_mask = generate_brain_mask(image)
+            negative_boxes = generate_negative_samples(brain_mask)
 
-            cmb_boxes = load_yolo_labels(label_path)
-            
-            negative_boxes = generate_negative_samples(brain_mask, cmb_boxes)
-            with open(label_path, "r") as f:
-                original_label_lines = f.readlines()
-                print(original_label_lines)
-            save_labels(output_label_path, original_label_lines, negative_boxes)
-
-    print("Negative sampling without explicit masks completed successfully!")
+            if os.path.getsize(label_path) <= 0: # if the text file is empty    
+                negative_num -= 1
+                with open(label_path, "r") as f:
+                    original_label_lines = f.readlines()
+                save_labels(output_label_path, original_label_lines, negative_boxes)
+        if 0 == negative_num:
+            break
 
 if __name__ == "__main__":    
     task = 'val'
-    images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train/images/{task}"
-    labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train/labels_16px/{task}"
-    output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train/2cls_labels/{task}"
+    images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/images/{task}"
+    labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/labels/{task}"
+    output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/labels/{task}"
     os.makedirs(output_labels_path, exist_ok=True)
     main(images_path, labels_path, output_labels_path)
