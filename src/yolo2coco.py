@@ -6,8 +6,7 @@ import argparse
 from tqdm import tqdm
 import numpy as np
 
-def yolo_to_coco(yolo_dataset_path, output_path, categories=None):
-    task = 'val'
+def yolo_to_coco(yolo_dataset_path, output_path, task, categories=None):
     # Initialize COCO format structure
     coco_format = {
         "images": [],
@@ -24,7 +23,7 @@ def yolo_to_coco(yolo_dataset_path, output_path, categories=None):
             raise FileNotFoundError("classes.txt not found. Please provide category names.")
     
     # Add categories to COCO format
-    for i, category in enumerate(categories, 1):  # COCO IDs start from 1
+    for i, category in enumerate(categories):  # COCO IDs start from 1
         coco_format["categories"].append({
             "id": i,
             "name": category
@@ -91,7 +90,7 @@ def yolo_to_coco(yolo_dataset_path, output_path, categories=None):
                         continue
                     
                     # COCO's category_id starts from 1, but YOLO's class_id starts from 0
-                    category_id = class_id + 1
+                    category_id = class_id
                     
                     # Add annotation to COCO format
                     coco_format["annotations"].append({
@@ -106,6 +105,7 @@ def yolo_to_coco(yolo_dataset_path, output_path, categories=None):
                     annotation_id += 1
     
     
+    output_path = os.path.join(output_path, f"{task}.json")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     # Save to JSON file
@@ -188,17 +188,17 @@ if __name__ == "__main__":
                       help="Input path: YOLO dataset directory or COCO JSON file")
     parser.add_argument("--output", type=str, required=True, 
                       help="Output path: COCO JSON file or YOLO dataset directory")
+    
+    parser.add_argument("--task", type=str, required=True)
     parser.add_argument("--categories", nargs='+', help="Category names (only needed for YOLO to COCO if classes.txt is missing)")
     
     args = parser.parse_args()
     
     if args.mode == "yolo2coco":
-        yolo_to_coco(args.input, args.output, args.categories)
+        yolo_to_coco(args.input, args.output, args.task, args.categories)
     else:
         coco_to_yolo(args.input, args.output)
 
-
-
-
 # python3 yolo2coco.py --mode yolo2coco --input /media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated/images --output /media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_coco/annotations.json --categories cmb
 # python3 /mnt/storage/ji/VALDO_brain_MRI_dataset_preprocessing/src/yolo2coco.py --mode yolo2coco --input /mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_allSequence_cmb_slice_only_train_small_dropped --output /mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_allSequence_cmb_slice_only_train_small_dropped_coco/val.json --categories cmb
+# python3 /mnt/storage/ji/VALDO_brain_MRI_dataset_preprocessing/src/yolo2coco.py --mode yolo2coco --input /mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright --output /mnt/storage/ji/brain_mri_valdo_mayo/2cls_coco --task train --categories cmb non-cmb

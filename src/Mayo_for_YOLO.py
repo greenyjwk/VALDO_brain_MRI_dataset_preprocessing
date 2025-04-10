@@ -16,18 +16,18 @@ def extract_slices(nifti_data, T2S_only=False):
 def save_slices_as_png(slices, output_dir, base_name, T2S_only):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    for i, slice in enumerate(slices):        
+    for i, slice_data in enumerate(slices):        
         '''
         Normalize slice to 0-1 range before scaling to 0-255
         But YOLO itself does scaling, so it might be deleted in the future.
         '''
         if T2S_only:
-            slice_normalized = (slice - np.min(slice)) / (np.max(slice) - np.min(slice))
+            slice_normalized = (slice_data - np.min(slice_data)) / (np.max(slice_data) - np.min(slice_data))
             img = Image.fromarray(np.uint8(slice_normalized * 255), mode="L")  # Use mode "L" for grayscale
         else:
             normalized_channels = []
-            for i_ch in range(slice.shape[2]):
-                channel = slice[:,:,i_ch]
+            for i_ch in range(slice_data.shape[2]):
+                channel = slice_data[:,:,i_ch]
                 channel_normalized = (channel - np.min(channel)) / (np.max(channel) - np.min(channel))
                 normalized_channels.append(channel_normalized)
             slice_normalized = np.stack(normalized_channels, axis=-1)

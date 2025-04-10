@@ -48,24 +48,21 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
     os.makedirs(os.path.join(output_dir, 'labels', task), exist_ok=True)
     os.makedirs(os.path.join(output_dir, 'masks', task), exist_ok=True)
 
-    for z in range(original_volume.shape[2]):
-        # Get the slice with all channels
+    print(original_volume.shape)
+    sys.exit()
+    for z in range(original_volume.shape[2]):   # Iterate through slices
         slice_data = original_volume[:, :, z, :]  # Shape: (height, width, 3)
         mask_slice = segmentation_mask[:, :, z]
         
         # Normalize each channel separately
         normalized_slice = np.zeros_like(slice_data, dtype=np.uint8)  # Explicitly create uint8 array
-        for c in range(slice_data.shape[-1]):
+        for c in range(slice_data.shape[-1]):   # Iterate through channels
             channel_data = slice_data[:, :, c]
             if channel_data.max() != channel_data.min():  # Avoid division by zero
                 normalized_slice[:, :, c] = (255 * ((channel_data - channel_data.min()) / 
                                                 (channel_data.max() - channel_data.min()))).astype(np.uint8)
             else:
                 normalized_slice[:, :, c] = np.zeros_like(channel_data, dtype=np.uint8)
-
-        # Debug prints
-        print(f"Normalized slice shape: {normalized_slice.shape}")
-        print(f"Normalized slice dtype: {normalized_slice.dtype}")
         
         # Make sure the array is contiguous before converting to image
         normalized_slice = np.ascontiguousarray(normalized_slice)
@@ -176,7 +173,8 @@ def get_train_val(root_dir):
 def main(T2S_only):
     original_data_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA"
     preprocessed_img_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_stacked"
-    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
+    # output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
+    output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/TEMP"
     process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only)
 
 if __name__ == "__main__":
