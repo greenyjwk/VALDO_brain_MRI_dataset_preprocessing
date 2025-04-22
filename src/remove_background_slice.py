@@ -1,9 +1,9 @@
 import os
 
-root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_3slices_cmbTrainOnly"
-images_dir = f"{root_path}/images/train"
-labels_dir = f"{root_path}/labels/train"
-# masks_dir = f"{root_path}/masks/train"
+task = 'train'
+root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN"
+images_dir = f"{root_path}/images/{task}"
+labels_dir = f"{root_path}/labels/{task}"
 
 for label_file in os.listdir(labels_dir):
     label_path = os.path.join(labels_dir, label_file)
@@ -21,6 +21,6 @@ for label_file in os.listdir(labels_dir):
 print("Cleanup complete.")
 
 '''
-It removes png files that don't have cmb patches. 
+It removes png files that don't have cmb patches.
 It is usually used from the train dataset.
 '''

@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import random
 
-IMG_SIZE = 512
+IMG_SIZE = 2048
 BOX_SIZE = 16
 N_NEG_SAMPLES = 2  # Exactly 2 samples
 NEGATIVE_CLASS_ID = 1  # non-CMB class
@@ -45,6 +45,15 @@ def generate_brain_mask(image):
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     return mask
 
+# generating brain mask from the csf region
+def generate_brain_mask(image):
+    mask = (image > 0).astype(np.uint8)
+    kernel = np.ones((5,5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    return mask
+
+
 def generate_negative_samples(brain_mask):
     valid_coords = np.argwhere(brain_mask == 1)
     np.random.shuffle(valid_coords)
@@ -84,7 +93,7 @@ def save_labels(output_path, original_labels, negative_boxes):
     with open(output_path, "w") as f:
         f.writelines(lines)
 
-def main(images_path, labels_path, output_labels_path):
+def main(images_path, labels_path, output_labels_path, ):
     
     path_list = os.listdir(images_path)
     random.shuffle(path_list)
@@ -112,10 +121,11 @@ def main(images_path, labels_path, output_labels_path):
         if 0 == negative_num:
             break
 
-if __name__ == "__main__":    
-    task = 'val'
-    images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/images/{task}"
-    labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/labels/{task}"
-    output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls/labels/{task}"
+if __name__ == "__main__":
+    task = 'train'
+    images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_2class/images/{task}"
+    labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_2class/labels/{task}"
+    output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_2class_TEMP/labels/{task}"
+    # csf = f"/mnt/storage/ji/csf_segment"
     os.makedirs(output_labels_path, exist_ok=True)
     main(images_path, labels_path, output_labels_path)
