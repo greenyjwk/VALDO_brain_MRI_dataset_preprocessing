@@ -53,6 +53,7 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             output_image_path = os.path.join(output_images_dir, filename)
             output_label_path = os.path.join(output_labels_dir, f"{os.path.splitext(filename)[0]}.txt")
             
+            print(image_path)
             # Get image dimensions
             image = cv2.imread(image_path)
             if image is None:
@@ -63,10 +64,10 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             # Rotate image and label
             rotate_image(image_path, output_image_path)
             rotate_yolo_label(label_path, output_label_path, img_width, img_height)
-            print()
 
 if __name__ == "__main__":
     # Input directories
+<<<<<<< HEAD
     # task = "train"
     # images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/images/{task}"
     # labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/labels/{task}"
@@ -82,5 +83,14 @@ if __name__ == "__main__":
     # Output directories
     output_images_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/images/{task}"
     output_labels_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/labels/{task}"
+=======
+    task = "val"
+    images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/images/{task}"
+    labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
+    
+    # Output directories
+    output_images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/images/{task}"
+    output_labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
+>>>>>>> 8570fee84be8e109fcc0622ab074d53f0c73b2d4
     
     process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir)

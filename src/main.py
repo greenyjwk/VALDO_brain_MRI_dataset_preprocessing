@@ -1,6 +1,7 @@
 import json
 import argparse
-# from preprocess.registration import registration_runner
+import sys
+from preprocess.registration import registration_runner
 from preprocess.skull_stripped_original import skull_stripped_runner
 from preprocess.bias_field_correction import bias_field_correction_runner
 from preprocess.select_sequence import select_sequence_valdo
@@ -69,10 +70,10 @@ def main():
         # resample_runner(reference_seq, input_root_path, output_root_path_resampled, config)
 
         output_root_path_registered = config["mayo_registration_output"]
-        # registration_runner(reference_seq, output_root_path_resampled, output_root_path_registered, config)
+        registration_runner(reference_seq, output_root_path_resampled, output_root_path_registered, config)
 
         output_root_path_skull_stripped = output_root_path_registered.replace("registered", "skull_stripped")
-        # skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
+        skull_stripped_runner(output_root_path_registered, output_root_path_skull_stripped)
 
         output_root_path_bias_field_correction = output_root_path_skull_stripped.replace("skull_stripped", "bias_field_correction")
         bias_field_correction_runner(output_root_path_skull_stripped, output_root_path_bias_field_correction)

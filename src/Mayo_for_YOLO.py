@@ -71,8 +71,8 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
 def main(T2S_only=False):
     parser = argparse.ArgumentParser(description='Generate YOLO labels from Nifti files')
     parser.add_argument("--coordinate_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/cmb_coordinates')
-    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled_0325')
-    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence_ch_norm')
+    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled_0325_TEMP')
+    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence')
     parser.add_argument("--output_dir_end_name", type=str, default='yolo_dataset')
     args = parser.parse_args()
 

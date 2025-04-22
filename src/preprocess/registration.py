@@ -46,9 +46,11 @@ def registration_runner(reference_seq, input_root_path, output_root_path, config
         moving1 = ants.image_read(moving1)
         moving2 = ants.image_read(moving2)
 
-        # # Mirror moving1 and moving2 along the horizontal axis (left-right flip)
         moving1 = ants.from_numpy(np.flip(moving1.numpy(), axis=0), spacing=moving1.spacing)
         moving2 = ants.from_numpy(np.flip(moving2.numpy(), axis=0), spacing=moving2.spacing)           
+
+        moving1 = ants.from_numpy(np.flip(moving1.numpy(), axis=0), spacing=moving1.spacing)
+        moving2 = ants.from_numpy(np.flip(moving2.numpy(), axis=0), spacing=moving2.spacing) 
 
         if config["dataset"] == 'mayo':
             if fixed.shape[3] > 1:

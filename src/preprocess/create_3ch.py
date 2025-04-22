@@ -12,8 +12,8 @@ def main():
     parser.add_argument('--dataset', type=str, choices=['mayo', 'valdo'], default='mayo', required=False)
     
     # Mayo
-    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled_0325")
-    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled_0325")
+    parser.add_argument('--src_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_bias_field_correction_resampled_0325_TEMP")
+    parser.add_argument('--output_path', type=str, required=False, default="/brain_mri_valdo_mayo/mayo_stacked_resampled_0325_TEMP")
     parser.add_argument('--config_path', type=str, required=False, default="/VALDO_brain_MRI_dataset_preprocessing/configs/config.json")
 
     # Valdo
