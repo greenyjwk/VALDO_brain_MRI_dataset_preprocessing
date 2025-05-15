@@ -1,14 +1,15 @@
 import subprocess
 import os
 
-root_path = "/media/Datacenter_storage/Ji/csf_segment"
+task = "train"
+root_path = f"/mnt/storage/ji/csf_segment_{task}"
 
 for file in os.listdir(root_path):
     file_path = os.path.join(root_path, file, f"T1_pve_0.nii.gz")
     print(file_path)
 
     # output_dir = f"/media/Datacenter_storage/Ji/csf_segment/{file}"
-    output_dir = f"/media/Datacenter_storage/Ji/csf_segment_threshold/{file}/"
+    output_dir = f"/mnt/storage/ji/csf_segment_threshold_{task}/{file}/"
 
     if not os.path.exists(output_dir):
         print(f"Creating output directory: {output_dir}")

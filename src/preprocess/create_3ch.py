@@ -34,7 +34,7 @@ def main():
         src_path = root + args.src_path
         output_dir = root + args.output_path
         config_path = root + args.config_path
-    
+
     # config file
     with open(config_path, 'r') as config_file:
         config = json.load(config_file)
