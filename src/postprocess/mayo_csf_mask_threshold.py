@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-task = "train"
+task = "val"
 root_path = f"/mnt/storage/ji/csf_segment_{task}"
 
 for file in os.listdir(root_path):
@@ -33,3 +33,11 @@ for file in os.listdir(root_path):
     except subprocess.CalledProcessError as e:
         print(f"Command failed with exit code {e.returncode}")
         print("Error output:", e.stderr)
+        
+        
+
+'''    
+export FSLDIR=/home/ji/fsl
+source $FSLDIR/etc/fslconf/fsl.sh
+export PATH=$FSLDIR/bin:$PATH
+'''
