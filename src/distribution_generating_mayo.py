@@ -133,8 +133,8 @@ class CMBAreaCalculator:
             f.write(stats_text)
 
 def main():
-    base_dir = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated"
-    output_dir = "/media/Datacenter_storage/Ji/distribution/mayo_yolo_t2s_only_rotated"
+    base_dir = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN"
+    output_dir = "/media/Datacenter_storage/Ji/distribution/mayo_yolo_t2s_only_rotated_GAN"
     
     calculator = CMBAreaCalculator(base_dir, output_dir)
     calculator.process_all_labels()
