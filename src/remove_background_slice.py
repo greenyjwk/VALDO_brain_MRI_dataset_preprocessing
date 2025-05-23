@@ -1,9 +1,8 @@
 import os
 
-task = 'train'
-root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN"
-images_dir = f"{root_path}/images/{task}"
-labels_dir = f"{root_path}/labels/{task}"
+root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_2class"
+images_dir = f"{root_path}/images/train"
+labels_dir = f"{root_path}/labels/train"
 
 for label_file in os.listdir(labels_dir):
     label_path = os.path.join(labels_dir, label_file)
@@ -17,7 +16,6 @@ for label_file in os.listdir(labels_dir):
             os.remove(image_path)
             # os.remove(mask_path)
             print(f"Deleted: {label_path} and {image_path}")
-
 print("Cleanup complete.")
 
 '''

@@ -66,13 +66,37 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             rotate_yolo_label(label_path, output_label_path, img_width, img_height)
 
 if __name__ == "__main__":
-    task = "train"
-    root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
-    images_dir = f"{root_path}/images/{task}"
-    labels_dir = f"{root_path}/labels/{task}"
+    # Input directories
+<<<<<<< HEAD
+    # task = "train"
+    # images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/images/{task}"
+    # labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/labels/{task}"
+    
+    # # Output directories
+    # output_images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/images/{task}"
+    # output_labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright/labels/{task}"
+    
+    task = "test"
+    images_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/images/{task}"
+    labels_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/labels/{task}"
     
     # Output directories
-    output_images_dir = f"{root_path}/images/{task}"
-    output_labels_dir = f"{root_path}/labels/{task}"
+    output_images_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/images/{task}"
+    output_labels_dir = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_t2s_only_rotated_GAN/labels/{task}"
+=======
+    task = "val"
+    images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN/images/{task}"
+    labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN/labels/{task}"
+
+    # Output directories
+<<<<<<< HEAD
+    output_images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/images/{task}"
+    output_labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
+>>>>>>> 8570fee84be8e109fcc0622ab074d53f0c73b2d4
     
+=======
+    output_images_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN/images/{task}"
+    output_labels_dir = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN/labels/{task}"
+
+>>>>>>> 69d17e4d600524a74a931801ef46d0a744d923af
     process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir)
