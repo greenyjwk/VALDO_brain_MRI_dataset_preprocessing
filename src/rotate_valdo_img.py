@@ -66,8 +66,8 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             rotate_yolo_label(label_path, output_label_path, img_width, img_height)
 
 if __name__ == "__main__":
-    task = "train"
-    root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
+    task = "val"
+    root_path = "/media/Datacenter_storage/Ji/valdo_dataset/valdo_t2s_cmbOnly_GAN"
     images_dir = f"{root_path}/images/{task}"
     labels_dir = f"{root_path}/labels/{task}"
     
