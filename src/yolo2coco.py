@@ -35,6 +35,8 @@ def yolo_to_coco(yolo_dataset_path, output_path, task, categories=None):
     for ext in image_extensions:
         image_paths.extend(glob.glob(os.path.join(yolo_dataset_path, f'images/{task}', ext)))
     
+
+    print(image_paths)
     annotation_id = 1
     
     # Process each image and its annotations
@@ -204,3 +206,8 @@ if __name__ == "__main__":
 # python3 /mnt/storage/ji/VALDO_brain_MRI_dataset_preprocessing/src/yolo2coco.py --mode yolo2coco --input /mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_cmb_slice_only_train_16px_2cls_upright --output /mnt/storage/ji/brain_mri_valdo_mayo/2cls_coco --task train --categories cmb non-cmb
 
 # python3 /mnt/storage/ji/VALDO_brain_MRI_dataset_preprocessing/src/yolo2coco.py --mode yolo2coco --input /mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s_GAN_3slices_cmbTrainOnly --output /mnt/storage/ji/brain_mri_valdo_mayo/3slice_coco --task train --categories cmb
+
+
+
+
+# python3 yolo2coco.py --mode yolo2coco --input /media/Datacenter_storage/Ji/valdo_dataset/valdo_t2s_cmbOnly_GAN/images --output /media/Datacenter_storage/Ji/valdo_dataset/valdo_t2s_cmbOnly_GAN/annotations.json --categories cmb
