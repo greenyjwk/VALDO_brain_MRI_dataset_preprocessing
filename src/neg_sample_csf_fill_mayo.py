@@ -120,7 +120,7 @@ def generate_negative_samples(csf_mask, original_image):
 
             # Mark region as used in mask space
             used_mask[mask_y1:mask_y2, mask_x1:mask_x2] = 1
-            
+
             # Reset attempts counter after successful placement
             attempts = 0
     
@@ -140,36 +140,25 @@ def save_labels(output_path, original_labels, negative_boxes):
     with open(output_path, "w") as f:
         f.writelines(lines)
 
-def main(images_path, labels_path, output_labels_path, task, dataset):
-    if dataset=="valdo":
-        csf_root_path = f"/mnt/storage/ji/csf_segment_threshold_{task}"
-    elif dataset=="mayo":
-        csf_root_path = "/media/Datacenter_storage/Ji/csf_segment_threshold"
+def main(images_path, labels_path, output_labels_path, dataset):
+    # csf_root_path = "/mnt/storage/ji/csf_segment_threshold_train"
+    csf_root_path =  "/media/Datacenter_storage/Ji/csf_segment_threshold"
     path_list = os.listdir(images_path)
     random.shuffle(path_list)
+
+    ##### Being used only when smapling is neccessry
+    path_list = random.sample(path_list, 200)
+    #####
     
-    # path_list = random.sample(path_list, 400)
-    print(path_list)
-    print(len(path_list))
-    end = 200
-    cnt = 0
     for filename in path_list:
+        print(filename)
         if filename.endswith((".jpg", ".png")):
             image_name = os.path.splitext(filename)[0]
             image_path = os.path.join(images_path, filename)
             label_path = os.path.join(labels_path, f"{image_name}.txt")
-            
             print(label_path)
-            # if os.path.exists(label_path):
-
-            with open(label_path, 'r') as f:
-                content = f.read()
-                if content.strip() != "":
-                    continue
-
-            cnt += 1
+            sys.exit()
             uid = image_name.split("_")[0]
-            # slice_num = int(image_name.split("_")[2].split('.')[0])
 
             if dataset=="valdo":
                 slice_num = int(image_name.split("_")[2].split('.')[0])
@@ -177,7 +166,6 @@ def main(images_path, labels_path, output_labels_path, task, dataset):
                 print(image_name.split("_")[1])
                 slice_num = int(image_name.split("_")[1])
             
-            print(uid, "   ",slice_num)
             csf_path = os.path.join(csf_root_path, f"{uid}", "T1_seg_0.nii.gz")
 
             output_label_path = os.path.join(output_labels_path, f"{image_name}.txt")
@@ -191,24 +179,22 @@ def main(images_path, labels_path, output_labels_path, task, dataset):
             with open(label_path, "r") as f:
                 original_label_lines = f.readlines()
             save_labels(output_label_path, original_label_lines, negative_boxes)
-        if cnt == end:
-            break
-
 
 if __name__ == "__main__":
-    task = 'test' 
-    dataset = 'mayo'
-    root_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence"
+    task = 'test'
+    # images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN_cmbOnly_2class_csf/images/{task}"
+    # labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN_cmbOnly_2class_csf/labels/{task}"
+    # output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_GAN_cmbOnly_2class_csf/labels/{task}"
 
-    if dataset == "valdo":
-        images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/images/{task}"
-        labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
-        # output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/TEMP3_train_background/labels/{task}"
-        output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
-    elif dataset == "mayo":        
-        images_path = f"{root_path}/images/{task}"
-        labels_path = f"{root_path}/labels/{task}"
-        output_labels_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/csf_labels/{task}"
+    images_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/images/{task}"
+    labels_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/labels/{task}"
+    output_labels_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/csf_labels/{task}"
 
     os.makedirs(output_labels_path, exist_ok=True)
-    main(images_path, labels_path, output_labels_path, task, dataset)
+    main(images_path, labels_path, output_labels_path, dataset="mayo")
+
+'''
+export FSLDIR=/home/ji/fsl
+source $FSLDIR/etc/fslconf/fsl.sh
+export PATH=$FSLDIR/bin:$PATH
+'''
