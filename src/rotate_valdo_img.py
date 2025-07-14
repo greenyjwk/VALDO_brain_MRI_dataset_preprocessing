@@ -2,7 +2,6 @@ import os
 import cv2
 
 def rotate_image(image_path, output_path):
-    # Read the image
     image = cv2.imread(image_path)
     if image is None:
         print(f"Failed to read image: {image_path}")
@@ -52,8 +51,7 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             label_path = os.path.join(labels_dir, f"{os.path.splitext(filename)[0]}.txt")
             output_image_path = os.path.join(output_images_dir, filename)
             output_label_path = os.path.join(output_labels_dir, f"{os.path.splitext(filename)[0]}.txt")
-            
-            print(image_path)
+
             # Get image dimensions
             image = cv2.imread(image_path)
             if image is None:
@@ -66,8 +64,8 @@ def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir
             rotate_yolo_label(label_path, output_label_path, img_width, img_height)
 
 if __name__ == "__main__":
-    task = "val"
-    root_path = "/media/Datacenter_storage/Ji/valdo_dataset/valdo_t2s_cmbOnly_GAN"
+    task = "train"
+    root_path = "/media/Datacenter_storage/Ji/valdo_dataset/valdo_gan"
     images_dir = f"{root_path}/images/{task}"
     labels_dir = f"{root_path}/labels/{task}"
     
