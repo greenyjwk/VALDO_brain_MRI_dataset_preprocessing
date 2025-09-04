@@ -4,7 +4,7 @@ It reduces the background slices so that background slices are same number as cm
 import os
 
 removal_count = 0
-root_path = "/media/Datacenter_storage/Ji/valdo_dataset/valdo_distrSampled_GAN_T1T2"
+root_path = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_png_final_cmb_only"
 images_dir = f"{root_path}/images/train"
 labels_dir = f"{root_path}/labels/train"
 

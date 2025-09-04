@@ -5,14 +5,17 @@ import sys
 import random
 import nibabel as nib
 
-IMG_SIZE = 1024
-MIN_BOX_SIZE = 12  # Minimum box size
-MAX_BOX_SIZE = 42  # Maximum box size
+IMG_SIZE = 512
+# MIN_BOX_SIZE = 12  # Minimum box size
+# MAX_BOX_SIZE = 42  # Maximum box size
+
+MIN_BOX_SIZE = 6  # Minimum box size
+MAX_BOX_SIZE = 21  # Maximum box size
+
 N_NEG_SAMPLES = None  # Exactly 2 samples
 NEGATIVE_CLASS_ID = 1  # non-CMB class
 
 def load_yolo_labels(label_path):
-    print(label_path)
     boxes = []
     with open(label_path, "r") as f:
         lines = f.readlines()
@@ -53,13 +56,13 @@ def generate_csf_mask(csf_path, slice_num):
     csf_img = csf_img.get_fdata()
     csf_img = csf_img[:, :, slice_num]  # Assuming the CSF mask is in the first slice
     csf_mask = csf_img.astype(np.uint8)
-    csf_mask = np.rot90(csf_mask, k=1)
+    # csf_mask = np.rot90(csf_mask, k=1)
     return csf_mask
 
 
 def generate_negative_samples(csf_mask, original_image):
     # Scale factor between mask and image
-    scale_factor = 4
+    scale_factor = 1
     
     h, w = csf_mask.shape
     negatives = []
@@ -110,6 +113,8 @@ def generate_negative_samples(csf_mask, original_image):
             if np.all(img_box == 0):
                 continue
             print(img_box.shape)
+            if img_box.shape[0] > 20:
+                continue
             black_pixel_percentage = np.sum(img_box == 0) / (box_size * box_size)
             
             # Skip if more than 80% of pixels are black
@@ -128,6 +133,7 @@ def generate_negative_samples(csf_mask, original_image):
 
 def save_labels(output_path, original_labels, negative_boxes):
     lines = original_labels.copy()
+
     for box in negative_boxes:
         x1, y1, x2, y2 = box
         width = (x2 - x1) / IMG_SIZE
@@ -142,15 +148,15 @@ def save_labels(output_path, original_labels, negative_boxes):
 
 def main(images_path, labels_path, output_labels_path, task, dataset):
     if dataset=="valdo":
-        csf_root_path = f"/mnt/storage/ji/csf_segment_threshold_{task}"
+        # /media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/CSF_NIFTI/csf_segment_threshold_train
+        # csf_root_path = f"/mnt/storage/ji/csf_segment_threshold_{task}"
+        csf_root_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/CSF_NIFTI/csf_segment_threshold_train"
     elif dataset=="mayo":
         csf_root_path = "/media/Datacenter_storage/Ji/csf_segment_threshold"
     path_list = os.listdir(images_path)
     random.shuffle(path_list)
     
     # path_list = random.sample(path_list, 400)
-    print(path_list)
-    print(len(path_list))
     end = 200
     cnt = 0
     for filename in path_list:
@@ -162,10 +168,13 @@ def main(images_path, labels_path, output_labels_path, task, dataset):
             print(label_path)
             # if os.path.exists(label_path):
 
-            with open(label_path, 'r') as f:
-                content = f.read()
-                if content.strip() != "":
-                    continue
+            # if not os.path.exists(label_path):
+            #     open(label_path, "w").close()
+
+            # with open(label_path, 'r') as f:
+            #     content = f.read()
+            #     if content.strip() != "":
+            #         continue
 
             cnt += 1
             uid = image_name.split("_")[0]
@@ -177,7 +186,6 @@ def main(images_path, labels_path, output_labels_path, task, dataset):
                 print(image_name.split("_")[1])
                 slice_num = int(image_name.split("_")[1])
             
-            print(uid, "   ",slice_num)
             csf_path = os.path.join(csf_root_path, f"{uid}", "T1_seg_0.nii.gz")
 
             output_label_path = os.path.join(output_labels_path, f"{image_name}.txt")
@@ -187,28 +195,38 @@ def main(images_path, labels_path, output_labels_path, task, dataset):
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             csf_mask = generate_csf_mask(csf_path, slice_num)
             negative_boxes = generate_negative_samples(csf_mask, image)
-
+            print("negative_boxes: ", negative_boxes)
             with open(label_path, "r") as f:
                 original_label_lines = f.readlines()
+            
+            modified_list = []
+            for line in original_label_lines:
+                modified_list.append(line + '\n')
+
+            original_label_lines = modified_list
             save_labels(output_label_path, original_label_lines, negative_boxes)
-        if cnt == end:
-            break
+        # if cnt == end:
+        #     break
 
 
 if __name__ == "__main__":
-    task = 'test' 
-    dataset = 'mayo'
-    root_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence"
+    task = 'val'
+    dataset = 'valdo'
 
     if dataset == "valdo":
-        images_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/images/{task}"
-        labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
+        # images_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/images/{task}"
+        # labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/labels/{task}"
+        # # output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/TEMP3_train_background/labels/{task}"
+        # output_labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/csf_labels/{task}"
+        images_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_png_final/images/{task}"
+        labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_png_final/labels/{task}"
         # output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/TEMP3_train_background/labels/{task}"
-        output_labels_path = f"/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box_t2s/labels/{task}"
+        output_labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/csf_png/csf_labels/{task}"
+
     elif dataset == "mayo":        
-        images_path = f"{root_path}/images/{task}"
-        labels_path = f"{root_path}/labels/{task}"
-        output_labels_path = "/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/csf_labels/{task}"
+        images_path = f"/media/Datacenter_storage/PublicDatasets/MAYO_cerebral_microbleeds/mayo_t2s_png_csf/images/{task}"
+        labels_path = f"/media/Datacenter_storage/PublicDatasets/MAYO_cerebral_microbleeds/mayo_t2s_png_csf/labels/{task}"
+        output_labels_path = f"/media/Datacenter_storage/PublicDatasets/MAYO_cerebral_microbleeds/mayo_t2s_png_csf/csf_labels/{task}"
 
     os.makedirs(output_labels_path, exist_ok=True)
     main(images_path, labels_path, output_labels_path, task, dataset)

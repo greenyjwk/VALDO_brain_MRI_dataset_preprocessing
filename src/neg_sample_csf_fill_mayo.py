@@ -203,13 +203,10 @@
 # export PATH=$FSLDIR/bin:$PATH
 # '''
 
-
-
-
+import sys
 import os
 import cv2
 import numpy as np
-import sys
 import random
 import nibabel as nib
 
@@ -284,6 +281,9 @@ def generate_negative_samples(csf_mask, original_image):
         if (box_region.shape == (mask_box_size, mask_box_size) and 
             np.all(box_region == 1) and 
             np.all(used_region == 0)):
+
+            print("box_region.shape == mask_box_size")
+
             x1 = mask_x1 * scale_factor
             y1 = mask_y1 * scale_factor
             x2 = mask_x2 * scale_factor
@@ -322,7 +322,7 @@ def save_labels(output_path, original_labels, negative_boxes):
         f.writelines(lines)
 
 def main(images_path, labels_path, output_labels_path, dataset):
-    csf_root_path =  "/media/Datacenter_storage/Ji/csf_segment_threshold"
+    csf_root_path = "/media/Datacenter_storage/Ji/csf_segment_threshold"
     path_list = os.listdir(images_path)
     random.shuffle(path_list)
     # Example: sample for testing, remove in production!
@@ -347,6 +347,7 @@ def main(images_path, labels_path, output_labels_path, dataset):
         else:
             original_label_lines = []
         # --- process image/mask ---
+        print("iamge_path: ",image_path )
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         csf_mask = generate_csf_mask(csf_path, slice_num)
         negative_boxes = generate_negative_samples(csf_mask, image)
@@ -355,9 +356,12 @@ def main(images_path, labels_path, output_labels_path, dataset):
         print(f"Wrote: {output_label_path} | Orig: {len(original_label_lines)} | Neg: {len(negative_boxes)}")
 
 if __name__ == "__main__":
-    task = 'test'
-    images_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/images/{task}"
-    labels_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/labels/{task}"
-    output_labels_path = f"/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence/csf_labels/{task}"
+    task = 'train'
+    images_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/images/{task}"
+    labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/labels/{task}"
+
+    # output_labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/TEMP/csf_labels/{task}"
+    output_labels_path = f"/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/valdo_csf_GAN/csf_labels/{task}"
+
     os.makedirs(output_labels_path, exist_ok=True)
-    main(images_path, labels_path, output_labels_path, dataset="mayo")
+    main(images_path, labels_path, output_labels_path, dataset="valdo")

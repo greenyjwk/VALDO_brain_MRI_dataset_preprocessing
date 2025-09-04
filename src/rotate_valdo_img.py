@@ -1,76 +1,104 @@
+import SimpleITK as sitk
+import numpy as np
 import os
-import cv2
 
-def rotate_image(image_path, output_path):
-    image = cv2.imread(image_path)
-    if image is None:
-        print(f"Failed to read image: {image_path}")
-        return
-    # Rotate 90 degrees counter-clockwise
-    rotated_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    
-    print("output_path: ", output_path)
-    # Save the rotated image
-    cv2.imwrite(output_path, rotated_image)
-
-def rotate_yolo_label(label_path, output_path, img_width, img_height):
-    if not os.path.exists(label_path):
-        print(f"Label file not found: {label_path}")
-        return
-
-    rotated_labels = []
-    with open(label_path, "r") as f:
-        lines = f.readlines()
-        for line in lines:
-            parts = line.strip().split()
-            if len(parts) < 5:
-                continue  # Skip invalid lines
-            class_id, x_center, y_center, width, height = map(float, parts)
-            
-            # Rotate YOLO coordinates
-            new_x_center = y_center
-            new_y_center = 1 - x_center
-            new_width = height
-            new_height = width
-            
-            rotated_labels.append(f"{int(class_id)} {new_x_center:.6f} {new_y_center:.6f} {new_width:.6f} {new_height:.6f}\n")
-    
-    print("label_path: ", label_path)
-    # Save the rotated labels
-    with open(output_path, "w") as f:
-        f.writelines(rotated_labels)
-
-def process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir):
-    os.makedirs(output_images_dir, exist_ok=True)
-    os.makedirs(output_labels_dir, exist_ok=True)
-
-    for filename in os.listdir(images_dir):
-        if filename.endswith((".jpg", ".png")):
-            # Paths for images and labels
-            image_path = os.path.join(images_dir, filename)
-            label_path = os.path.join(labels_dir, f"{os.path.splitext(filename)[0]}.txt")
-            output_image_path = os.path.join(output_images_dir, filename)
-            output_label_path = os.path.join(output_labels_dir, f"{os.path.splitext(filename)[0]}.txt")
-
-            # Get image dimensions
-            image = cv2.imread(image_path)
-            if image is None:
-                print(f"Failed to read image: {image_path}")
-                continue
-            img_height, img_width = image.shape[:2]
-            
-            # Rotate image and label
-            rotate_image(image_path, output_image_path)
-            rotate_yolo_label(label_path, output_label_path, img_width, img_height)
+def rotate_nifti_90_counterclockwise(src_path, dest_path):
+    """
+    Rotate a NIfTI image 90 degrees counterclockwise in the x-y plane
+    """
+    try:
+        print(f"Reading image: {src_path}")
+        
+        # Check if source file exists
+        if not os.path.exists(src_path):
+            print(f"ERROR: Source file does not exist: {src_path}")
+            return False
+        
+        # Read the image
+        image = sitk.ReadImage(src_path)
+        
+        # Get original properties
+        original_size = image.GetSize()
+        original_spacing = image.GetSpacing()
+        original_origin = image.GetOrigin()
+        original_direction = image.GetDirection()
+        
+        print(f"Original image size: {original_size}")
+        print(f"Original spacing: {original_spacing}")
+        print(f"Original origin: {original_origin}")
+        
+        # Convert to numpy array (SimpleITK uses z,y,x ordering)
+        image_array = sitk.GetArrayFromImage(image)
+        print(f"Original array shape: {image_array.shape}")
+        print(f"Value range: [{np.min(image_array):.3f}, {np.max(image_array):.3f}]")
+        
+        # Rotate 90 degrees counterclockwise in x-y plane
+        # For SimpleITK arrays (z,y,x), we rotate on axes (2,1) which corresponds to (x,y)
+        # k=1 means 90 degrees counterclockwise
+        rotated_array = np.rot90(image_array, k=1, axes=(2, 1))
+        
+        print(f"Rotated array shape: {rotated_array.shape}")
+        
+        # Create new SimpleITK image from rotated array
+        rotated_image = sitk.GetImageFromArray(rotated_array)
+        
+        # For 90-degree counterclockwise rotation in x-y plane:
+        # - x becomes -y (but with array indexing, this is handled by rot90)
+        # - y becomes x
+        # So we need to swap x and y spacing
+        new_spacing = [original_spacing[1], original_spacing[0], original_spacing[2]]  # swap x,y spacing
+        rotated_image.SetSpacing(new_spacing)
+        
+        # Keep the same origin (simplified approach)
+        rotated_image.SetOrigin(original_origin)
+        
+        # Keep the same direction matrix (simplified approach)
+        rotated_image.SetDirection(original_direction)
+        
+        print(f"Final image size: {rotated_image.GetSize()}")
+        print(f"Final spacing: {rotated_image.GetSpacing()}")
+        
+        # Ensure output directory exists
+        output_dir = os.path.dirname(dest_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        
+        # Write the rotated image
+        sitk.WriteImage(rotated_image, dest_path)
+        print(f"SUCCESS: Rotated image saved to {dest_path}")
+        
+        # Verify the output
+        verification_array = sitk.GetArrayFromImage(sitk.ReadImage(dest_path))
+        print(f"Verification - saved image value range: [{np.min(verification_array):.3f}, {np.max(verification_array):.3f}]")
+        print(f"Non-zero voxels: {np.count_nonzero(verification_array)}/{verification_array.size}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    task = "train"
-    root_path = "/media/Datacenter_storage/Ji/valdo_dataset/valdo_gan"
-    images_dir = f"{root_path}/images/{task}"
-    labels_dir = f"{root_path}/labels/{task}"
+    # Input and output paths
+    src_path = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/bias_field_correction/sub-218/sub-218_space-T2S_desc-masked_T2S.nii.gz"
     
-    # Output directories
-    output_images_dir = f"{root_path}/images/{task}"
-    output_labels_dir = f"{root_path}/labels/{task}"
+    # Create output filename
+    base_dir = os.path.dirname(src_path)
+    base_filename = os.path.basename(src_path)
+    name_without_ext = base_filename.replace('.nii.gz', '')
+    dest_path = os.path.join(base_dir, f"{name_without_ext}_rotated.nii.gz")
     
-    process_dataset(images_dir, labels_dir, output_images_dir, output_labels_dir)
+    print(f"Input file: {src_path}")
+    print(f"Output file: {dest_path}")
+    print("-" * 60)
+    
+    # Perform the rotation
+    success = rotate_nifti_90_counterclockwise(src_path, dest_path)
+    
+    if success:
+        print("\n✅ Rotation completed successfully!")
+        print(f"Rotated file saved as: {dest_path}")
+    else:
+        print("\n❌ Rotation failed!")

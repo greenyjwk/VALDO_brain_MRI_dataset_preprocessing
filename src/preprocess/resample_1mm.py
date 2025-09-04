@@ -85,8 +85,6 @@
 
 # resample_nifti_in_directory(input_root_path, output_root_path)
 
-
-
 import os
 import sys
 import numpy as np
@@ -176,6 +174,6 @@ def resample_nifti_in_directory(input_root, output_root):
 
 # Example usage:
 if __name__ == "__main__":
-    input_root_path = "/mnt/storage/cmb_segmentation_dataset/Task2"
-    output_root_path = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_1mm_0205"
+    input_root_path = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/bias_field_correction"
+    output_root_path = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/bias_field_correction_resampled_1mm"
     resample_nifti_in_directory(input_root_path, output_root_path)

@@ -5,9 +5,9 @@ import numpy as np
 import json
 from PIL import Image
 
-def extract_slices(nifti_data, T2S_only=False):
+def extract_slices(nifti_data, T2S_only):
     if T2S_only:
-        last_channel = nifti_data[:, :, :, -1]
+        last_channel = nifti_data[:, :, :]
         slices = [last_channel[:, :, i] for i in range(last_channel.shape[2])]
     else:
         slices = [nifti_data[:, :, i, :] for i in range(nifti_data.shape[2])]
@@ -33,7 +33,7 @@ def save_slices_as_png(slices, output_dir, base_name, T2S_only):
             slice_normalized = np.stack(normalized_channels, axis=-1)
             img = Image.fromarray(np.uint8(slice_normalized * 255), mode="RGB")
 
-        img = img.rotate(90, expand=True)
+        # img = img.rotate(90, expand=True)
         modified_name = base_name.split('_')[0] + "_" + f"{i:d}.png"
         img.save(os.path.join(output_dir, modified_name))
 
@@ -42,7 +42,7 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
         data = json.load(f)
     coordinates = data['label']
     base_name = os.path.splitext(os.path.basename(label_file))[0][:8]  # Use the first 8 characters of the file name
-    width, height, _, ch = nifti_data.shape
+    width, height, _, _ = nifti_data.shape
 
     # bounding box size in pixels
     # bbox_size = 32
@@ -68,12 +68,11 @@ def generate_yolo_labels(label_file, nifti_data, output_dir):
         with open(label_path, 'a') as f:
             f.write(f"0 {x_center_norm:.6f} {y_center_norm:.6f} {bbox_width_norm:.6f} {bbox_height_norm:.6f}\n")
 
-def main(T2S_only=False):
+def main(T2S_only):
     parser = argparse.ArgumentParser(description='Generate YOLO labels from Nifti files')
     parser.add_argument("--coordinate_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/cmb_coordinates')
-    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_stacked_resampled_0325_TEMP')
-    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/Ji/brain_mri_valdo_mayo/mayo_yolo_all_sequence')
-    parser.add_argument("--output_dir_end_name", type=str, default='yolo_dataset')
+    parser.add_argument("--nifti_dir", type=str, default='/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3_consec_slices')
+    parser.add_argument("--output_dir", type=str, default='/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3_consec_slices_png')
     args = parser.parse_args()
 
     nifti_dir = args.nifti_dir
@@ -110,6 +109,7 @@ def main(T2S_only=False):
     for label_file in label_files:
         label_path = os.path.join(args.coordinate_dir, label_file)
         nifti_file = os.path.join(nifti_dir, label_file.replace(".json", ""), os.path.basename(label_file).replace('.json', '.nii.gz'))
+        print(nifti_file)
         nifti_img = nib.load(nifti_file)
         nifti_data = nifti_img.get_fdata()
         generate_yolo_labels(label_path, nifti_data, output_label_dir)

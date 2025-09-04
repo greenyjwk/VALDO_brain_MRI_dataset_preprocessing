@@ -134,7 +134,7 @@ def save_labels(output_path, original_labels, negative_boxes):
         height = (y2 - y1) / IMG_SIZE
         x_center = (x1 + x2) / 2 / IMG_SIZE
         y_center = (y1 + y2) / 2 / IMG_SIZE
-        line = f"{NEGATIVE_CLASS_ID} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n"
+        line = f"\n{NEGATIVE_CLASS_ID} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}"
         lines.append(line)
 
     with open(output_path, "w") as f:
