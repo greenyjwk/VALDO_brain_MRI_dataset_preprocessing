@@ -1,5 +1,4 @@
 import os
-import sys
 import nibabel as nib
 import numpy as np
 from PIL import Image
@@ -9,22 +8,37 @@ from sklearn.model_selection import train_test_split
 num_256, num_512 = 0, 0
 
 def get_instance_bounding_boxes(mask):
-    # Label connected components
-    labeled_mask, num_labels = ndimage.label(mask)
+    labeled_mask, num_labels = ndimage.label(mask)  # Extracting cmb clusters
     bboxes = []
-    expand = 3
+    buffer = 3
     for label in range(1, num_labels + 1):
         instance_mask = labeled_mask == label
         rows = np.any(instance_mask, axis=1)
         cols = np.any(instance_mask, axis=0)
         y_min, y_max = np.where(rows)[0][[0, -1]]
         x_min, x_max = np.where(cols)[0][[0, -1]]
-        x_min = x_min - expand
-        x_max = x_max + expand
-        y_min = y_min - expand
-        y_max = y_max + expand
+        x_min = x_min - buffer
+        x_max = x_max + buffer
+        y_min = y_min - buffer
+        y_max = y_max + buffer
         bboxes.append((x_min, y_min, x_max, y_max))
     return bboxes
+
+def volume_normalization(vol3d, low=1, high=99):
+    v = vol3d.astype(np.float32)
+    p_low = np.percentile(v, low)
+    p_high = np.percentile(v, high)
+
+    if p_high <= p_low:
+        v_min, v_max = float(v.min()), float(v.max())
+        if v_max == v_min:
+            return np.zeros_like(v, dtype=np.uint8)
+        out = (255.0 * (v - v_min) / (v_max - v_min)).clip(0, 255)
+        return out.astype(np.uint8)
+    
+    v = np.clip(v, p_low, p_high)
+    out = 255.0 * (v - p_low) / (p_high - p_low)
+    return out.clip(0,255).astype(np.uint8)
 
 def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
     global num_512
@@ -35,11 +49,8 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
     vol_nifti = nib.load(vol_path)
     vol_data = vol_nifti.get_fdata()
 
-    print(f"Processing subject {subject_id}")
-    print(f"Mask shape: {mask_data.shape}")
     if mask_data.shape[0] == 256:
         num_256 = num_256 + 1
-    print(f"Volume shape: {vol_data.shape}")
     if mask_data.shape[0] == 512:
         num_512 = num_512 + 1
     original_volume = vol_data
@@ -48,29 +59,22 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
     os.makedirs(os.path.join(output_dir, 'labels', task), exist_ok=True)
     os.makedirs(os.path.join(output_dir, 'masks', task), exist_ok=True)
 
-    print(original_volume.shape)
-    for z in range(original_volume.shape[2]):   # Iterate through slices
-        slice_data = original_volume[:, :, z, :]  # Shape: (height, width, 3)
+    # Volume-wise and Channel-wise Normalization
+    normalized_volume = np.zeros_like(original_volume, dtype= np.uint8)
+    for i in range(original_volume.shape[-1]):  # Iterating through chennel
+        channel_data = original_volume[:,:,:,i]
+        normalized_volume[...,i] = volume_normalization(channel_data)
+
+    for z in range(normalized_volume.shape[2]):   # Iterate through slices
+        normalized_slice = normalized_volume[:, :, z, :]  # Shape: (height, width, 3)
         mask_slice = segmentation_mask[:, :, z]
-        
-        # Normalize each channel separately
-        normalized_slice = np.zeros_like(slice_data, dtype=np.uint8)  # Explicitly create uint8 array
-        for c in range(slice_data.shape[-1]):   # Iterate through channels
-            channel_data = slice_data[:, :, c]
-            if channel_data.max() != channel_data.min():  # Avoid division by zero
-                normalized_slice[:, :, c] = (255 * ((channel_data - channel_data.min()) / 
-                                                (channel_data.max() - channel_data.min()))).astype(np.uint8)
-            else:
-                normalized_slice[:, :, c] = np.zeros_like(channel_data, dtype=np.uint8)
-        
-        # Make sure the array is contiguous before converting to image
-        normalized_slice = np.ascontiguousarray(normalized_slice)
-        
+        normalized_slice = np.ascontiguousarray(normalized_slice) # it makes the memory become contiguous, it doesn't change the values
+
         # Save the image slice
         if T2S_only:
             normalized_slice = normalized_slice[:, :, -1]  # Keep only the first channel
             slice_img = Image.fromarray(normalized_slice, mode='L')  # Explicitly specify RGB mode
-            slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))    
+            slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
         else:
             slice_img = Image.fromarray(normalized_slice, mode='RGB')  # Explicitly specify RGB mode
             slice_img.save(os.path.join(output_dir, 'images', task, f'{subject_id}_slice_{z:03d}.png'))
@@ -82,14 +86,14 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
         bboxes = get_instance_bounding_boxes(mask_slice)
         if bboxes:
             # Convert to YOLO format
-            img_height, img_width, _ = slice_data.shape
+            img_height, img_width, _ = normalized_slice.shape
             yolo_bboxes = []
             for bbox in bboxes:
                 x_center = (bbox[0] + bbox[2]) / (2 * img_width)
                 y_center = (bbox[1] + bbox[3]) / (2 * img_height)
                 width = (bbox[2] - bbox[0]) / img_width
                 height = (bbox[3] - bbox[1]) / img_height
-                yolo_bboxes.append(f"0 {x_center} {y_center} {repr(width)} {repr(height)}")
+                yolo_bboxes.append(f"0 {x_center} {y_center} {width} {height}")
 
             # Save YOLO annotation
             with open(os.path.join(output_dir, 'labels', task, f'{subject_id}_slice_{z:03d}.txt'), 'w') as f:
@@ -98,22 +102,16 @@ def process_nifti(mask_path, vol_path, output_dir, subject_id, T2S_only, task):
             with open(os.path.join(output_dir, 'labels', task, f'{subject_id}_slice_{z:03d}.txt'), 'w') as f:
                 pass
 
-def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2S_only):
-    train, val = get_train_val(original_data_dir)
-    print(train)
-    print()
-    print(val)
-    print()
+def process_all_subjects(preprocessed_img_dir, output_dir, T2S_only):
+    train, val = get_train_val(preprocessed_img_dir)
     for train_mask_path in train:
         train_mask_path = train_mask_path.split('/')[-1]
         train_subject_id = train_mask_path.split('_')[0]
         train_mask_path = train_mask_path.split('_')[:2]
         train_mask_path = train_mask_path[0] + '_' + train_mask_path[1] + '_CMB.nii.gz'
-        print(train_mask_path)
         # Construct the corresponding volume file path
-        vol_path = os.path.join(preprocessed_img_dir, train_subject_id, f'{train_subject_id}.nii.gz')   # preprcessed img path
-        train_mask_path = os.path.join(original_data_dir, train_subject_id, train_mask_path)           # original mask path
-        print(vol_path)
+        vol_path = os.path.join(preprocessed_img_dir, train_subject_id, f'{train_subject_id}.nii.gz')       # preprcessed img path
+        train_mask_path = os.path.join(preprocessed_img_dir, train_subject_id, train_mask_path)             # original mask path
         if os.path.exists(vol_path):
             process_nifti(train_mask_path, vol_path, output_dir, train_subject_id, T2S_only, task='train')
         else:
@@ -126,7 +124,7 @@ def process_all_subjects(original_data_dir, preprocessed_img_dir, output_dir, T2
         val_mask_path = val_mask_path[0] + '_' + val_mask_path[1] + '_CMB.nii.gz'
 
         vol_path = os.path.join(preprocessed_img_dir, val_subject_id, f'{val_subject_id}.nii.gz') # For the 3 channel volume
-        val_mask_path =  os.path.join(original_data_dir, val_subject_id, val_mask_path)
+        val_mask_path =  os.path.join(preprocessed_img_dir, val_subject_id, val_mask_path)
 
         if os.path.exists(vol_path):
             process_nifti(val_mask_path, vol_path, output_dir, val_subject_id, T2S_only, task='val')
@@ -172,11 +170,9 @@ def get_train_val(root_dir):
     return train_files, val_files
 
 def main(T2S_only):
-    dir_for_mask_and_split = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/bias_field_correction_resampled"
-    preprocessed_img_dir = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3_consec_slices_TEMP"
-    # output_dir = "/mnt/storage/ji/brain_mri_valdo_mayo/valdo_resample_ALFA_YOLO_PNG_epd_gt_box"
-    output_dir = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3slices_png_final"
-    process_all_subjects(preprocessed_img_dir, preprocessed_img_dir, output_dir, T2S_only)
+    preprocessed_img_dir = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3ch_stacked"
+    output_dir = "/media/Datacenter_storage/PublicDatasets/cerebral_microbleeds_VALDO/3slices_png_final_volumewise_norm"
+    process_all_subjects(preprocessed_img_dir, output_dir, T2S_only)
 
 if __name__ == "__main__":
     main(T2S_only=False)

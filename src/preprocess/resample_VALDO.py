@@ -1,29 +1,25 @@
 import os
-import sys
 import shutil
 import numpy as np
 import SimpleITK as sitk
 
 def resample_image(image, new_spacing=[0.5, 0.5, 3.0], is_mask=False):
     resample = sitk.ResampleImageFilter()
-    
+
     # Get original spacing and size
     original_spacing = np.array(image.GetSpacing())
     original_size = np.array(image.GetSize())
-    
     print("original_spacing: ", original_spacing)
     print("original_size: ", original_size)
     new_spacing[-1] = original_spacing[-1]
     print("new_spacing: ", new_spacing)
-    # Compute new size to preserve field of view (FOV)
     new_size = np.round(original_size * (original_spacing / np.array(new_spacing))).astype(int).tolist()
     print("new_size: ", new_size)
-    # Configure resampling parameters
     resample.SetOutputSpacing(new_spacing)
     resample.SetSize(new_size)
     resample.SetOutputOrigin(image.GetOrigin())
     resample.SetOutputDirection(image.GetDirection())
-    
+
     # Use nearest neighbor interpolation for masks to preserve binary values
     if is_mask:
         resample.SetInterpolator(sitk.sitkNearestNeighbor)
@@ -59,7 +55,7 @@ def resample_nifti_in_directory(input_root, output_root):
                 image = sitk.ReadImage(input_file_path)
 
                 # Resample to 0.5mm x 0.5mm x 3mm 
-                # z-axis doesn't change
+                # z-axis is not going to be changed
                 new_spacing = [0.5, 0.5, 3.0]
                 resampled_image = resample_image(image, new_spacing, is_mask=is_mask)
 
@@ -67,10 +63,8 @@ def resample_nifti_in_directory(input_root, output_root):
                 sitk.WriteImage(resampled_image, output_file_path)
                 print(f"Processed {nifti_file} {'(mask)' if is_mask else '(image)'}")
                 print()
-                print()
             print(f"Resampled images saved in {output_subdir_path}")
         else:
-            # print(input_subdir_path)
             print(output_subdir_path)
             if os.path.exists(output_subdir_path):
                 shutil.rmtree(output_subdir_path)
